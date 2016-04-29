@@ -1,0 +1,77 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:v="urn:schemas-microsoft-com:vml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>弧段方向调整</title>
+<style type="text/css">
+html,body {
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	/*background-color:#000000;*/
+}
+
+a {
+	color: #ffffff !important;
+	background: #0980C1;
+	margin-right: 5px;
+	font-weight: bold;
+	font-size: 12px !important;
+	text-decoration: none;
+	width: 100px;
+	height: 25px;
+	line-height: 25px;
+	text-align: center;
+}
+
+a:hover {
+	color: #cccccc !important;
+	background: #82ACDE;
+	font-weight: bold;
+	text-decoration: none;
+	width: 100px;
+	text-align: center;
+}
+
+#butdiv {
+	margin: 0px auto;
+	z-index: 1000;
+	position: absolute;
+	left: 0px;
+	top: 10px;
+	width: 100%;
+	color: #cccccc !important;
+	font-family: Microsoft YaHei;
+	font-size:16px;
+}
+#tcountdiv {
+	margin: 0px auto;
+	z-index: 1000;
+	position: absolute;
+	left: 0px;
+	top: 10px;
+	background: white;
+	color: #cccccc !important;
+	font-family: Microsoft YaHei;
+	font-size:16px;
+}
+</style>
+<script>
+
+</script>
+</head>
+<body style="overflow-x: hidden; overflow-y: hidden">
+	<div id="map" style="top: 1px; left: 0px; border-bottom: 0px;">
+		<iframe id="mapframe" scrolling="no" width="100%" height="100%" frameborder="0" style="margin: 0"></iframe>
+	</div>
+
+	<div id="butdiv" style="width: 100%; height: 10%;display:none">
+		<span align='center'>
+			<a href="#" id="nodejp">连接点配置</a>
+			<a href="#" id="noderelation">连通关系配置</a>
+			<a href="#" id="returnIndex">返回</a>
+		</span>
+	</div>
+	<script src="../../../vendor/require/require.js"  data-main="js/editnode"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="HiMap"
+  id="myeclipse.1458267441013"
+  context-root="/HiMap"
+  j2ee-spec="5.0"
+  archive="HiMap.war">
+  <attributes>
+    <attribute name="webrootdir" value="WebRoot" />
+  </attributes>
+</project-module>
+

@@ -1,0 +1,107 @@
+<style>
+    .hi-table-striped {
+        background-color: #E3EAF4;
+    }
+</style>
+<script>
+    function activeTR(row){
+        alert($("#tbPassSearch").attr("title"));
+        $("#tbPassSearch>tr").removeClass("active");
+        $(row).addClass('active');
+    }
+</script>
+
+    <hi:panel style="height: 60%;">
+        <div><h4>机动车各状态数量</h4></div>
+        <div>
+            <!--<hi:datagrid style="width:100%;height:100%;" dataProvider="mydata">
+                <hi:columns>
+                    <hi:DataGridColumn dataField="" headerText="" textAlign=""></hi:DataGridColumn>
+                </hi:columns>
+            </hi:datagrid>-->
+
+            <table id="tbPassSearch" title="dddd" class="table table-hover table-bordered table-condensed">
+                <tr style="background-color: #7B7E87;font-weight: bold;color: #ffffff">
+                    <td align="center">号牌号码</td>
+                    <td align="center">号牌类型</td>
+                    <td align="center">采集时间</td>
+                    <td align="center">采集地点</td>
+                    <td align="center">车辆速度</td>
+                    <td align="center">行驶方向</td>
+                    <td align="center">车道</td>
+                    <td align="center">车身颜色</td>
+                    <td align="center">车辆品牌</td>
+                </tr>
+                <tr onclick="activeTR(this)">
+                    <td>鲁BBV390</td>
+                    <td>小型汽车</td>
+                    <td>2015-12-19 10:59:09</td>
+                    <td>福州南路与闽江路路口</td>
+                    <td>30</td>
+                    <td>南->北</td>
+                    <td>第三车道</td>
+                    <td>未知</td>
+                    <td>未知</td>
+                </tr>
+                <tr class="hi-table-striped" onclick="activeTR(this)">
+                    <td>鲁BBV390</td>
+                    <td>小型汽车</td>
+                    <td>2015-12-19 10:59:09</td>
+                    <td>福州南路与闽江路路口</td>
+                    <td>30</td>
+                    <td>南->北</td>
+                    <td>第三车道</td>
+                    <td>未知</td>
+                    <td>未知</td>
+                </tr>
+                <tr onclick="activeTR(this)">
+                    <td>鲁BBV390</td>
+                    <td>小型汽车</td>
+                    <td>2015-12-19 10:59:09</td>
+                    <td>福州南路与闽江路路口</td>
+                    <td>30</td>
+                    <td>南->北</td>
+                    <td>第三车道</td>
+                    <td>未知</td>
+                    <td>未知</td>
+                </tr>
+                <tr  class="hi-table-striped" onclick="activeTR(this)">
+                    <td>鲁BBV390</td>
+                    <td>小型汽车</td>
+                    <td>2015-12-19 10:59:09</td>
+                    <td>福州南路与闽江路路口</td>
+                    <td>30</td>
+                    <td>南->北</td>
+                    <td>第三车道</td>
+                    <td>未知</td>
+                    <td>未知</td>
+                </tr>
+            </table>
+        </div>
+    </hi:panel>
+
+    <hi:panel style="height: 40%;margin-top: -15px;">
+        <div><h4>警力信息统计</h4></div>
+        <div>Panel content</div>
+        
+    </hi:panel>
+
+
+<!-- bootstrap原始写法-->
+<!--<div class="panel panel-default" style="height: 60%;">
+    <div class="panel-heading" style="background-color: #666666;font-weight: bold;color: #ffffff;">
+        <h4 class="panel-title">机动车各状态数量</h4>
+    </div>
+    <div class="panel-body">
+        Panel content
+    </div>
+</div>
+
+<div class="panel panel-default" style="height: 40%;margin-top: -15px;">
+    <div class="panel-heading" style="background-color: #666666;font-weight: bold;color: #ffffff;">
+        <h4 class="panel-title">警力信息统计</h4>
+    </div>
+    <div class="panel-body">
+        Panel content
+    </div>
+</div>-->

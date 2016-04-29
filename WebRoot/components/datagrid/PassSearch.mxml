@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml"
+		   width="100%"
+		   label="黑名单审核"
+		   height="100%" 
+		   creationComplete="init();"
+		   xmlns:views="common.flash.ComboxExtends.*"
+		   xmlns:pageBar="common.flash.PageBar.*"
+		   xmlns:carNumTextInput="common.flash.CarNumTextInput.scripts.*"
+		   xmlns:exbu="common.flash.ButtonGroup.scripts.*"
+		   xmlns:timePicker="common.flash.DateTime.*">
+	<mx:Script source="scripts/interact/PassSearch.as"/>
+
+	<mx:DateFormatter id="df"
+					  formatString="YYYY-MM-DD JJ:NN:SS"/>
+	<mx:RemoteObject id="PassSearchAction"
+					 destination="PassSearchAction"
+					 showBusyCursor="true"
+					 fault="FaultHandler(event)">
+		<!-- 取得枚举 -->
+		<mx:method name="getEnums"
+				   result="getEnumsHandler(event.result)"/>
+		<!-- 取得卡口树 -->
+		<mx:method name="getPassTreeCombobox"
+				   result="getPassTreeCombobox_process(event.result)"/>
+		<mx:method name="getList"
+				   result="getListHandler(event.result)"/>
+		<mx:method name="getList1"
+				   result="getListHandler(event.result)"/>
+		<mx:method name="downLoadImge"
+				   result="processdownload(event.result)"/>
+		<!-- 取得车标枚举 -->
+		<mx:method name="getCarBrandEnum"
+				   result="getCarBrandEnumProcess(event.result)"/>
+		<mx:method name="findDeparts"
+				   result="processGetPickOrgans(event.result)"/>
+		<mx:method name="findPassDataCount"
+				   result="findPassDataCountProcess(event)"/>
+						<!-- 根据传来的设备编号查找设备安装点 -->
+		<mx:method name="findPointcodeid"
+				   result="processFindPointcodeid(event.result)"/>				   
+		<!-- 取得车身颜色枚举 -->
+		<mx:method name="getVehCode" result="getVehCodeHandler(event.result)"/>
+	</mx:RemoteObject>
+	<mx:RemoteObject id="ipWhiteListAction"
+					 destination="ipWhiteListAction"
+					 showBusyCursor="true"
+					 fault="FaultHandler(event)">
+		<!-- 取得枚举 -->
+		<mx:method name="passSearchAuthrity"
+				   result="passSearchAuthrityHandler(event.result)"/>
+			   
+	</mx:RemoteObject>
+	<mx:RemoteObject id="TrackAnalysisAction"
+					 destination="TrackAnalysisAction"
+					 showBusyCursor="true"
+					 fault="FaultHandler(event)">
+		<mx:method name="getpointAndXY" 
+				   result="getpointAndXYHandler(event.result)"/>
+	</mx:RemoteObject>
+	<mx:RemoteObject id="SysParamsAction"
+					 destination="SysParamsAction"
+					 showBusyCursor="true"
+					 fault="FaultHandler(event)">
+		<!-- 系统参数 -->
+		<mx:method name="getParamValue"
+				   result="getParamValueHandler(event.result)"/>
+			   
+	</mx:RemoteObject>
+	<mx:RemoteObject id="YellowSignCarAction"
+					 destination="YellowSignCarAction"
+					 showBusyCursor="true"
+					 fault="FaultHandler(event)">
+		<mx:method name="findTpc"
+				   result="findTpcHandler(event.result)"/>
+	</mx:RemoteObject>
+	<mx:HBox width="100%" height="55" backgroundColor="#028CCD">
+		<mx:HBox width="100%"
+				 height="100%"
+				 verticalAlign="middle"
+				 paddingTop="0"
+				 paddingBottom="0"
+				 paddingLeft="10">
+			<mx:HBox width="500">
+				<mx:Label text="过车查询" fontSize="24" color="#FFFFFF"  fontFamily="黑体"/>
+			</mx:HBox>
+			<mx:HBox width="100%"
+					 horizontalAlign="right"
+					 verticalAlign="middle"
+					 paddingTop="0"
+					 paddingBottom="0"
+					 paddingLeft="0"
+					 paddingRight="0"
+					 horizontalGap="0"
+					 verticalGap="0">
+				<!--mx:LinkButton icon="@Embed('images/common/button/exp.png')"
+							   id="F081303"
+							   labelPlacement="bottom"
+							   paddingTop="7"
+							   paddingBottom="7"
+							   color="#FFFFFF"
+							   enabled="{authContext.checkOperationAuth('03080801')}"
+							   click="exportExcel();"/-->
+				<mx:LinkButton id="gjhfLB"
+						       icon="@Embed('images/common/button/trackanalysis.png')"
+							   labelPlacement="bottom"
+							   color="#FFFFFF"
+							   paddingTop="7"
+							   paddingBottom="7"
+							   click="trackReshow();"/>
+				<exbu:ExportButton datePro="['EXCEL','图片']" func="{expFunc}" id="exbuId" width="55" enabled="{authContext.checkOperationAuth('03080801')}"/>
+			</mx:HBox>
+		</mx:HBox>
+	</mx:HBox>
+	<mx:VBox width="100%"
+			 height="100%"
+			 backgroundColor="#E3E4E6"
+			 paddingTop="5"
+			 paddingBottom="0"
+			 paddingLeft="10"
+			 paddingRight="10">
+		<mx:Grid width="100%"
+				 paddingTop="5">
+			<mx:GridRow width="100%"
+						horizontalAlign="left">
+				<mx:GridItem>
+					<mx:Label text="号牌号码"/>
+				</mx:GridItem>
+				<mx:GridItem width="100%">
+					<carNumTextInput:CarNumTextInput id="carNumber" change="carNumChange()"
+													 width="225"  maxChars="10"/>
+				</mx:GridItem>
+
+				<mx:GridItem>
+					<mx:Label text="号牌类型"/>
+				</mx:GridItem>
+				<mx:GridItem width="100%">
+					<mx:ComboBox id="carNoType"
+								 labelField="enumname"
+								 width="225"/>
+				</mx:GridItem>
+				<mx:GridItem>
+					<mx:Label text="车    道"/>
+				</mx:GridItem>
+				<mx:GridItem width="100%">
+					<mx:ComboBox id="clane"
+								 labelField="enumname"
+								 width="225"/>
+				</mx:GridItem>
+
+			</mx:GridRow>
+
+			<mx:GridRow width="100%"
+						horizontalAlign="left">
+				<mx:GridItem>
+					<mx:Label text="行驶方向"/>
+				</mx:GridItem>
+				<mx:GridItem width="100%">
+					<mx:ComboBox id="direct"
+								 labelField="enumname"
+								 width="225"/>
+				</mx:GridItem>
+
+				<mx:GridItem>
+					<mx:Label text="开始时间"/>
+				</mx:GridItem>
+				<mx:GridItem width="100%">
+					<timePicker:AdvancedDateField id="stDF"
+												  width="200"/>
+				</mx:GridItem>
+
+				<mx:GridItem>
+					<mx:Label text="结束时间"/>
+				</mx:GridItem>
+				<mx:GridItem width="100%">
+					<timePicker:AdvancedDateField id="etDF"
+												  width="190"/>
+				</mx:GridItem>
+			</mx:GridRow>
+
+			<mx:GridRow width="100%"
+						horizontalAlign="left">
+				<mx:GridItem>
+					<mx:Label text="采集机关"
+							  id="lblPickOrgans"/>
+				</mx:GridItem>
+				<mx:GridItem width="100%">
+					<mx:ComboBox id="cobPickOrgans"
+								 width="225"
+								 change="filterFrom();"/>
+				</mx:GridItem>
+				
+				<mx:GridItem>
+					<mx:Label text="采集地点"/>
+				</mx:GridItem>
+				<mx:GridItem width="100%">
+					<views:FilterComboBox id="from"
+										  filterFunction="filterFunction"
+										  labelFunction="labelFunction"
+										  itemRenderer="mx.controls.Label"
+										  mouseOver="this.from.toolTip = this.from.selectedLabel" 
+										  width="225"
+										  rowCount="8"/>
+				</mx:GridItem>
+				<mx:GridItem>
+					<mx:Label text="车身颜色"/>
+				</mx:GridItem>
+				
+				<mx:GridItem width="100%">
+					<mx:ComboBox id="carColor" 
+								 labelField="enumname"
+								 width="225"/>
+				</mx:GridItem>
+				
+			</mx:GridRow>
+			<mx:GridRow width="100%"
+						horizontalAlign="left">
+				
+				<mx:GridItem>
+					<mx:Label text="车辆品牌" />
+				</mx:GridItem>
+				<mx:GridItem width="100%">
+					<views:FilterComboBox id="carBrand"
+										  filterFunction="carBrandFilterFunction"
+										  labelFunction="carBrandLabelFunction"
+										  width="225"
+										  rowCount="8"/>
+				</mx:GridItem>
+				
+				<mx:GridItem colSpan="4">
+					<!--mx:CheckBox id="noMatch"
+								 change="changehphpType();"
+								 selected="true"/>
+					<mx:Label text="号牌号码精确匹配"/-->
+					<mx:CheckBox id="pageSearch"
+									 change="changeSearchType();" 
+									 selected="true"/>
+					<mx:Label text="显示总记录数"/>
+					<mx:CheckBox id="hisNumSearch"
+								 change="changeHisNumSearchType();" 
+								 selected="false"/>
+					<mx:Label text="显示修改过的号码"/>
+				</mx:GridItem>
+			</mx:GridRow>
+
+			<mx:GridRow width="100%"
+						horizontalAlign="right">
+				<mx:GridItem colSpan="4">
+				<mx:Label color="red" text="输入号牌号码时，%代表多位字符，*代表任意一位字符，#代表任意一位数字，@代表任意一位字母！"/>
+				</mx:GridItem>
+				<mx:GridItem colSpan="2"
+							 horizontalAlign="right">
+					<mx:Button id="F081301"
+							   enabled="{authContext.checkOperationAuth('03080802')}"
+							   label="查询"
+							   click="search();"
+							   useHandCursor="true" 
+						   	   buttonMode="true"/><!--
+					<mx:Button label="查看详情"
+							   id="F081302"
+							   enabled="{authContext.checkOperationAuth('03080803')}"
+							   click="showView();"/>-->
+					<!--mx:Button label="图片导出"
+							   id="F081304"
+							   enabled="{authContext.checkOperationAuth('03080804')}"
+							   click="exportImge();"/-->
+					<mx:Button label="重置" 
+						   click="resert();" 
+						   useHandCursor="true" 
+						   buttonMode="true"/>
+				</mx:GridItem>
+
+			</mx:GridRow>
+		</mx:Grid>
+		<mx:DataGrid width="100%"
+					 id="myGrid"
+					 itemDoubleClick="showView();"
+					 doubleClickEnabled="{authContext.checkOperationAuth('F081302')}"
+					 dataProvider="{mydata}"
+					 height="100%">
+			<mx:columns>
+				<mx:DataGridColumn headerText="ID"
+								   headerStyleName="centered"
+								   dataField="nid"
+								   textAlign="center"
+								   visible="false"/>
+				<mx:DataGridColumn headerText="号牌号码"
+								   headerStyleName="centered"
+								   dataField="ccarnumber"
+								   textAlign="left"
+								   width="65"/>
+				<mx:DataGridColumn headerText="号牌类型"
+								   headerStyleName="centered"
+								   dataField="clicensetype"
+								   textAlign="center"
+								   width="70"/>
+				<mx:DataGridColumn headerText="采集时间"
+								   headerStyleName="centered"
+								   dataField="dcollectiondate"
+								   textAlign="center"
+								   width="125"/>
+				<mx:DataGridColumn headerText="采集地点"
+								   dataField="ccollectionaddress"
+								   headerStyleName="centered"
+								   textAlign="left"/>
+				<mx:DataGridColumn headerText="车辆速度"
+								   dataField="nvehiclespeed"
+								   headerStyleName="centered"
+								   textAlign="right"
+								   width="65"/>
+				<mx:DataGridColumn headerText="行驶方向"
+								   dataField="nderictrion"
+								   headerStyleName="centered"
+								   textAlign="left"
+								   dataTipField="nderictrion"
+								   width="65"/>
+				<mx:DataGridColumn headerText="车道"
+								   dataField="clanenumber"
+								   dataTipField="clanenumber"
+								   headerStyleName="centered"
+								   textAlign="left"
+								   width="65"							
+								    showDataTips="true"/>
+				<mx:DataGridColumn headerText="车身颜色"
+								   dataField="carcolor"
+								   headerStyleName="centered"
+								   textAlign="left"
+								   width="65"/>
+				<mx:DataGridColumn headerText="车辆品牌"	
+								   dataField="carbrand"
+								   headerStyleName="centered"
+								   textAlign="left"
+								   width="80"/>
+				<mx:DataGridColumn headerText="历史号牌号码"
+								   dataField="chiscarnumber"
+								   id="chiscarnumber" 
+								   visible="false" 
+								   headerStyleName="centered"
+								   textAlign="left"
+								   width="90"/>
+				<mx:DataGridColumn headerText="设备编号"
+								   dataField="cdevicecode"
+								   id="cdevicecode" 
+								   visible="false" 
+								   headerStyleName="centered"
+								   textAlign="left"/>
+				<mx:DataGridColumn headerText="操作"
+								   headerStyleName="centered"
+								   textAlign="center"
+								   width="50">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:HBox horizontalAlign="center" verticalAlign="middle">
+								<mx:Image source="@Embed('images/common/button/detail.png')" click="this.outerDocument.showView()" toolTip="详情" useHandCursor="true" buttonMode="true"
+									enabled="{this.outerDocument.authContext.checkOperationAuth('03080803')}"/>
+							</mx:HBox>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+		<mx:HBox horizontalAlign="right" width="100%" backgroundColor="#FFFFFF">
+			<mx:HBox id="pageBarHBox" horizontalAlign="left" width="100%" visible="true" includeInLayout="true">
+				<pageBar:PageBar3 id="pagebar1"
+								 width="100%"
+								 PageSize="15"
+								 TotalSizeMethod="{getTotalSize}"
+								 ListMethod="{searchList}"/>	
+			</mx:HBox>
+			<mx:HBox horizontalAlign="left" id="pageHBox" width="100%" visible="false" includeInLayout="false">
+				<mx:LinkButton id="upBtn"
+							   width="60"
+							   label="上一页"
+							   click="doSearch('up');"
+							   enabled="false"/>
+				<mx:LinkButton id="downBtn"
+							   width="60"
+							   label="下一页"
+							   click="doSearch('down');"
+							   enabled="false"/>
+			</mx:HBox>
+		</mx:HBox>
+	</mx:VBox>
+</mx:Module>

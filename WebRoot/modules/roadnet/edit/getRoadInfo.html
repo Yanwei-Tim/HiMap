@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<title>道路名称查询</title> 
+	
+	<style type="text/css">
+		body{
+			margin:0;
+			height:100%;
+			width:100%;
+			position:absolute;
+		}
+		#mapContainer{
+			position: absolute;
+			top:0;
+			left: 0;
+			right:0;
+			bottom:0;
+		}
+		
+		#tip{
+			height:120px;
+			background-color:#fff;
+			padding-left:10px;
+			padding-right:10px;
+			position:absolute;
+			bottom:20px;
+			font-size:12px;
+			right:10px;
+			border-radius:3px;
+			width:300px;
+			line-height:20px;
+		}
+		#tip input[type="button"]{
+			margin-top:10px;
+			background-color: #0D9BF2;
+			height:25px;
+			text-align:center;
+			line-height:25px;
+			color:#fff;
+			font-size:12px;
+			border-radius:3px;
+			outline: none;
+			border:0;
+			cursor:pointer;
+		}
+	</style>
+	<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.3&key=adc84cf44c6e88bf7916eaa8027c5833"></script>
+	<script type="text/javascript" src="../../../vendor/jquery/jquery-1.10.2.min.js"></script>
+	<script type="text/javascript" src="../../../vendor/himap/tool/gps.js"></script>
+	<script type="text/javascript" src="js/json2.js"></script>
+</head>
+<body>  
+    <div id="mapContainer"></div>
+    <div id="tip">
+        <div><input type="button" value="查询" onclick="startSearch()"/></div>
+        <div id="r_title"><b>道路查询结果:</b></div>
+        <div id="result"> </div>
+    </div>
+    
+    
+	<script type="text/javascript">
+		var pathArr = [];
+		var pathArr1 = [];
+		//基本地图加载
+		var map = new AMap.Map("mapContainer",{
+			resizeEnable: true,
+	        view: new AMap.View2D({
+	            center: new AMap.LngLat(120.386447,36.085358),
+	            zoom:13
+	        })
+	    });
+	    function startSearch(){
+	    	$.ajax({
+				url:"/roadnet/query/queryRecord?qtype=0",
+				type:"get",
+				dataType:"json",
+				//data:{dlmc:'宁夏路'},
+				success:function(data){
+					largeArrayProcess(data.record,roadSearch,1);
+				}
+			});
+	    }
+	    
+	    
+		function roadSearch(roadArr) {
+			var roadinfo = roadArr[0];
+		    var MSearch;
+		    AMap.service(["AMap.RoadInfoSearch"], function() {        
+		        MSearch = new AMap.RoadInfoSearch({ //构造地点查询类
+		            pageSize:10,
+		            pageIndex:1,
+		            city:"0532" //城市
+		        });
+		        //关键字查询
+		        MSearch.roadInfoSearchByRoadName(roadinfo.DLMC, function(status, result){
+		        	result.DLMC = roadinfo.DLMC;
+		        	result.DLDM = roadinfo.DLDM;
+		        	if(status === 'complete' && result.info === 'OK'){
+		        		roadSearch_CallBack(result);
+		        	}
+		        }); 
+		    });
+		}
+		totalcount = 0;
+		//回调函数
+		function roadSearch_CallBack(data) {
+		    var resultStr = "";
+		    var roadArr = data.roadInfo;
+		    var resultCount = roadArr.length;
+		    for (var i = 0; i < resultCount; i++) {
+		    		roadArr[i].viodldm = data.DLDM;
+		    		roadArr[i].roadid = roadArr[i].id;
+		    		var paths = roadArr[i].path;
+		    		for(var m=0;m<paths.length;m++){
+		    			var path = paths[m];
+		    			for(var k=0;k<path.length;k++){
+		    				var point = path[k];
+		    				var point84 = GPS.gcj_decrypt_exact(point.lat,point.lng);
+		    				path[k].lng = point84.lon;
+		    				path[k].lat = point84.lat;
+		    			}
+		    		}
+		    		roadArr[i].strcoords = roadArr[i].path;
+		    		
+		    		$.ajax({
+						url:"/roadnet/edit/addRoadLink",
+						type:"post",
+						dataType:"json",
+						data:{roadinfo:JSON.stringify(roadArr[i])},
+						success:function(data){
+							
+						}
+					});
+		    		console.log(roadArr[i].name+(totalcount++));
+		    		
+		         /*pathArr = roadArr[i].path;           
+		         resultStr += "<span style=\"font-size: 12px;padding:0px 0 4px 2px; border-bottom:1px solid #C1FFC1;\">"+"<b>名称</b>："+roadArr[i].name+""+ "<b>    道路描述</b>：" + roadArr[i].type +""+ "<b>    道路宽度</b>：" + roadArr[i].width +"</span>"; 
+		        
+		        for(var j = 0; j < pathArr.length; j++){
+		            var e = pathArr[j];
+		            pathArr1 = [];
+		            for(l = 0;l < e.length; l++){
+		                var path = e[l];
+		                pathArr1.push(path);
+                        console.log(path);
+		            }
+
+		            var polyline = new AMap.Polyline({
+		                map: map,
+		                path: pathArr1,
+		                strokeColor: "#3366FF"//线颜色
+		            });
+		        }*/
+		    }
+		
+		    //map.setFitView();
+		    //document.getElementById("result").innerHTML = resultStr;
+		}
+		
+		 //大数据量循环的优化方法
+	    function largeArrayProcess(array,process,onceNum,context){
+	        arrPocessTimeout = setTimeout(function(){
+	            if(array == null || array.length<=0){
+	                return;
+	            }
+	            var count=0;
+	            var showarray = new Array();
+	            while(count<onceNum){
+	                if(array.length==0){
+	                    break;
+	                }
+	                var item = array.shift();
+	                showarray.push(item);
+	                count++;
+	            }
+	            process.call(context,showarray);
+	            if (array.length > 0){
+	               	arrPocessTimeout = setTimeout(arguments.callee, 0);
+	            }else{
+	                //addLayerListener(devicetype);
+	            }
+	        }, 200);
+	    }
+	</script>
+</body>
+</html>
