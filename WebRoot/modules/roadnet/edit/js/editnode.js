@@ -62,8 +62,12 @@ require(["jquery","vendor/himap/tool/tools","text","domReady!"],function($,Tools
 		});
 	});
 	
-	$("#nodejp").on('click',showJp);
-	$("#noderelation").on('click',showNodeRelations);
+	$("#nodejp").on('click',function(){
+		getAjaxNodeInfo(strcoords,showJp);
+	});
+	$("#noderelation").on('click',function(){
+		getAjaxNodeInfo(strcoords,showNodeRelations);
+	});
 	
 	
 
@@ -81,6 +85,10 @@ function getNodeInfo(evt){
 	var pixpos = Tools.getMousePosition(evt,document.getElementById("mapframe"));
 	var pos = editnode_map.getMousePos(pixpos.x,pixpos.y);
 	strcoords = pos.lon+","+pos.lat;
+	getAjaxNodeInfo(strcoords,showJp);
+}
+
+function getAjaxNodeInfo(strcoords,callback){
 	$.ajax({
 		url:"/roadnet/edit/getRouteNode",
 		type:"get",
@@ -90,34 +98,14 @@ function getNodeInfo(evt){
 			routenode = data.routenode; //节点信息
 			if(null!=routenode.nodeid){
 				$("#butdiv").show();
-				noderelations = data.noderelations; //连通关系
 				joinpoints = data.joinpoints; //节点包含的连接点
 				nearjoinpoints = data.nearjoinpoints; //节点周围的连接点
-				nearnodes = data.nearnodes;
-				var relationarr = noderelations.next_nodes.split(",");
-				var ltztarr = noderelations.ltztj.split(",");
-				for(var i=0;i<nearnodes.length;i++){
-					nearnodes[i].ltzt = [];
-					nearnodes[i].routenode = routenode;
-					var m = 0;
-					for(m = 0;m<relationarr.length;m++){
-						if(relationarr[m] == nearnodes[i].NODEID){
-							break;
-						}
-					}
-					var ltzt = ltztarr[m];
-					for(m = 0;m<relationarr.length;m++){
-						for(var k=0;k<nearnodes.length;k++){
-							if(nearnodes[k].NODEID == relationarr[m]){
-								nearnodes[i].ltzt.push({nodeid:relationarr[m],ltzt:ltzt.substring(m,m+1),strcoords:nearnodes[k].STRCOORDS})
-								break;
-							}
-						}
-					}
-					
+				nearnodes = data.nearnodes;//下一结点
+				ftlist = data.ftlist; //禁止转向关系
+				
+				if(null!=callback){
+					callback.call();
 				}
-				//显示连接点
-				showJp();
 				
 			}
 			
@@ -128,10 +116,7 @@ function getNodeInfo(evt){
 function showJp(){
 	mapframe.loadmodule("modules/roadnet/edit/js","editnode_map",function(ad){
 		mapframe._MapApp.clear();
-		ad.closeWMS();
 		setTimeout(function(){ad.centerAndZoom(strcoords,0);isincrossmap = true;},200);
-		ad.showcross(routenode);
-		ad.showjoinpoints(joinpoints);
 		ad.shownearjoinpoints(nearjoinpoints);
 	});
 }
@@ -148,7 +133,6 @@ function showNodeRelations(){
 
 //添加一条连接点
 function addJoinpoint(jp){
-	alert(jp.POINTID);
 	for(var i=0;i<nearjoinpoints.length;i++){
 		if(nearjoinpoints[i].POINTID == jp.POINTID){
 			nearjoinpoints.splice(i,1);
@@ -157,7 +141,14 @@ function addJoinpoint(jp){
 	}
 	joinpoints.push(jp);
 	//ajax添加到后台
-	//更新连接点列表
+	$.ajax({
+		url:"/roadnet/edit/insertJptoNode",
+		type:"get",
+		dataType:"json",
+		data:{nodeid:routenode.nodeid,pointid:jp.POINTID},
+		success:function(data){
+		}
+	});
 }
 
 //删除一条连接点
@@ -170,7 +161,14 @@ function delJoinpoint(jp){
 	}
 	nearjoinpoints.push(jp);
 	//ajax更新到后台
-	//更新连接点列表
+	$.ajax({
+		url:"/roadnet/edit/rmJpfromNode",
+		type:"get",
+		dataType:"json",
+		data:{nodeid:routenode.nodeid,pointid:jp.POINTID},
+		success:function(data){
+		}
+	});
 }
 
 
@@ -182,7 +180,6 @@ function delRoutenode(nodeid){
 
 //添加转向关系
 function addNoderelation(fromnode,tonode,relation){
-	alert(fromnode+"--"+tonode+"--"+relation);
 	for(var i=0;i<nearnodes.length;i++){
 		if(nearnodes[i].NODEID == fromnode){
 			for(var m = 0;m<nearnodes[i].ltzt.length;m++){

@@ -1,0 +1,211 @@
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:v ="urn:schemas-microsoft-com:vml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=gbk"/>
+    <title>交通地图服务</title>
+    
+    <script>
+        function createHttpRequest() {
+            if (window.ActiveXObject) {
+                request = new ActiveXObject("Microsoft.XMLHTTP");
+            } else if (window.XMLHttpRequest) {
+                request = new XMLHttpRequest();
+            }
+        }
+
+        function initmap(){
+            _MapApp = new EzMap(document.getElementById("map"));
+            var pOverview=new OverView();
+            pOverview.minLevel=8;
+            pOverview.maxLevel=10;
+            _MapApp.addOverView(pOverview);
+            _MapApp.editOverlay();
+
+            _MapApp.showMapControl();
+            _MapApp.hideCopyright();
+            //_MapApp.map.hideMapControl();//隐藏比例尺
+            _MapApp.map.hideMapServer();//隐藏图层切换按钮
+            if(centerpoint!=null && centerpoint.split(",").length == 2 && initlevel!=null){
+                _MapApp.centerAndZoom(new Point(centerpoint.split(",")[0]+0,centerpoint.split(",")[1]+0),initlevel-0);
+            }
+            _MapApp.centerAndZoom(new Point(120.36883,36.0868),1);
+
+
+            showRoad();
+            //showints();
+            //var polyline = new Polyline("120.43680,36.17633,120.43682,36.17641,120.43684,36.17645,120.43686,36.17649,120.43689,36.17653,120.43693,36.17657,120.43697,36.17660,120.43703,36.17664,120.43674,36.17663,120.43672,36.17663,120.43665,36.17663,120.43629,36.17662,120.43569,36.17661,120.43556,36.17663,120.43442,36.17661,120.43432,36.17658,120.43270,36.17654,120.43269,36.17654,120.43149,36.17652,120.43035,36.17649,120.42875,36.17646,120.42869,36.17645,120.42788,36.17644,120.42618,36.17636,120.42549,36.17634,120.42401,36.17630,120.42246,36.17625,120.42214,36.17630,120.42173,36.17629,120.42165,36.17629,120.42105,36.17628,120.42105,36.17628,120.42045,36.17627,120.41982,36.17625,120.41924,36.17623,120.41865,36.17622,120.41846,36.17621,120.41593,36.17615,120.41577,36.17615,120.41553,36.17614,120.41466,36.17611,120.41405,36.17610,120.41395,36.17610,120.41381,36.17610,120.41333,36.17608,120.41267,36.17608,120.41099,36.17609,120.41078,36.17609,120.41078,36.17615,120.41078,36.17639,120.41078,36.17661,120.41078,36.17664,120.41078,36.17668,120.41076,36.17674,120.41075,36.17676,120.41071,36.17688,120.41066,36.17677,120.41066,36.17675,120.41065,36.17672,120.41065,36.17663,120.41065,36.17636,120.41064,36.17615,120.41078,36.17615,120.41098,36.17615,120.41266,36.17614,120.41332,36.17613,120.41381,36.17615,120.41395,36.17615,120.41405,36.17615,120.41466,36.17617,120.41553,36.17619,120.41577,36.17620,120.41593,36.17620,120.41709,36.17623,120.41845,36.17627,120.41865,36.17627,120.41923,36.17629,120.41982,36.17631,120.42045,36.17632,120.42105,36.17633,120.42170,36.17635,120.42176,36.17635,120.42212,36.17636,120.42239,36.17640,120.42401,36.17643,120.42551,36.17646,120.42623,36.17648,120.42788,36.17651,120.42868,36.17653,120.42871,36.17653,120.42875,36.17653,120.43035,36.17657,120.43150,36.17660,120.43268,36.17663,120.43270,36.17663,120.43429,36.17671,120.43443,36.17669,120.43561,36.17672,120.43570,36.17674,120.43559,36.17678,120.43496,36.17677,120.43441,36.17676,120.43429,36.17671");
+            //polyline.addListener("dblclick",function(evt){alert(evt)});
+            //_MapApp.addOverlay(polyline);
+            //showArcByStartNode("120.38013,36.08662");
+
+        }
+
+		function setStartNode(str){
+			startnode = str;
+		}
+
+
+        function showArcByStartNode(pointid){
+            if(pointid == null){
+                pointid = document.getElementById("pointid").value;
+                //alert(pointid);
+            }
+
+            _MapApp.clear();
+            createHttpRequest();
+            var url =  rooturl+"/getNextInts.do?pointid="+pointid;
+            try {
+                request.onreadystatechange = function(){
+                    if (request.readyState == 4) {
+                        var data = "";
+                        if (request.status == 200 || request.status == 0) {
+                            if (typeof(JSON) == 'undefined'){
+                                data = eval("("+request.responseText+")");
+                            }else{
+                                data = JSON.parse(request.responseText);
+                            }
+                            for(var i=0;i<data.length;i++){
+                                showgroad(data[i].strcoords);
+                            }
+                            //centerTo(data[0].longitude+","+data[0].latitude);
+
+                        }
+                    }
+                };
+                request.open("POST", url, false);
+                request.send("");
+            } catch (exception) {
+                alert("false");
+            }
+        }
+
+        function showShortestPath(){
+            _MapApp.clear();
+            createHttpRequest();
+            var url = "/roadnet/analy/queryShortestPath?startpoint="+startpoint+"&endpoint="+endpoint;
+            try {
+                request.onreadystatechange = function(){
+                    if (request.readyState == 4) {
+                        var data = "";
+                        if (request.status == 200 || request.status == 0) {
+                            if (typeof(JSON) == 'undefined'){
+                                data = eval("("+request.responseText+")");
+                            }else{
+                                data = JSON.parse(request.responseText);
+                            }
+                            var path = data.path;
+                            showgroad(path);
+                            /*for(var i=0;i<path.length;i++){
+                                showgroad(path[i]);
+                            }*/
+                        }
+                    }
+                };
+                request.open("POST", url, false);
+                request.send("");
+            } catch (exception) {
+                alert("false");
+            }
+        }
+
+        function showgroad(strCoord){
+            if(strCoord == null){
+                return;
+            }
+
+            var newpLine = new Polyline(strCoord,"#00FF00",3,1,0);// 构造一个多义线对象
+            newpLine.addListener("dblclick",function(evt){
+                alert(evt)
+            });
+
+            _MapApp.addOverlay(newpLine);// 将多义线对象添加到地图中
+        }
+
+        function centerTo(newpos){
+            //var newpos = document.getElementById("centerpos").value;
+            _MapApp.centerAtLatLng(new Point(newpos.split(",")[0],newpos.split(",")[1]));
+        }
+
+
+        function showRoad(){
+            legendfunc=new LegendFunc();
+            //legendfunc.format=geoserverURL+"/sde/wms?REQUEST=GetMap&VERSION=1.1.0&FORMAT=image/png&SERVICE=WMS&BBOX=EZBOX&SRS=EPSG:4326&LAYERS=sde:route_roadlink&WIDTH=EZWIDTH&height=EZHEIGHT&TRANSPARENT=true";
+            legendfunc.format=geoserverURL+"/sde/wms?REQUEST=GetMap&VERSION=1.1.0&FORMAT=image/png&SERVICE=WMS&BBOX=EZBOX&SRS=EPSG:4326&LAYERS=sde:ROUTE_ARC&WIDTH=EZWIDTH&height=EZHEIGHT&TRANSPARENT=true";
+
+            legendfunc.open(_MapApp);
+        }
+        function showints(){
+            legendfunc=new LegendFunc();
+
+            legendfunc.format=geoserverURL+"/sde/wms?REQUEST=GetMap&VERSION=1.1.0&FORMAT=image/png&SERVICE=WMS&BBOX=EZBOX&SRS=EPSG:4326&LAYERS=sde:ROUTE_NODE&WIDTH=EZWIDTH&height=EZHEIGHT&TRANSPARENT=true";
+            legendfunc.open(_MapApp);
+        }
+
+
+
+    </script>
+</head>
+<body onload="initmap()" style="overflow-x: hidden; overflow-y: hidden;">
+
+<div id="map" style="width:100%;height:800px;top: 1px; left: 0px; border-bottom: 0px; overflow-x: hidden; overflow-y: hidden;"></div>
+<input type="button" style="font-size: large" onclick="javascript:_MapApp.changeDragMode('drawPoint',null,null,function(str){startpoint = str})" value="选择起点"/>
+<input type="button" style="font-size: large" onclick="javascript:_MapApp.changeDragMode('drawPoint',null,null,function(str){endpoint = str})" value="选择终点"/>
+<input type="button" style="font-size: large" onclick="showShortestPath()" value="计算"/>
+<script type="text/javascript">
+	//××××××××××××××××××配置参数××××××××××××××××××××
+    var mapurl = ""; //地图url地址
+    var centerpoint = ""; //地图中心点
+    var initlevel = "";   //地图初始化显示层级
+    var geoserverURL = "";//geoserver地址，用于展示路况、渲染图等专题图
+    var mapmaxlevel = ""; //地图最大显示级别
+    
+
+    var rooturl = document.URL.split( "/" )[0]+"/"+ document.URL.split( "/" )[1]+"/"+ document.URL.split( "/" )[2]+"/"+ document.URL.split( "/" )[3];
+    var request;
+    if (window.ActiveXObject) {
+        request = new ActiveXObject("Microsoft.XMLHTTP");
+    } else if (window.XMLHttpRequest) {
+        request = new XMLHttpRequest();
+    }
+    var url = "/getSysParams?sysparams=2001,2002,2003,2004,2005";
+    try {
+        request.onreadystatechange = function(){
+            if (request.readyState == 4) {
+                var data = "";
+                if (request.status == 200 || request.status == 0) {
+                    if (typeof(JSON) == 'undefined'){
+                        data = eval("("+request.responseText+")");
+                    }else{
+                        data = JSON.parse(request.responseText);
+                    }
+                    for(var i=0;i<data.record.length;i++){
+                    	var sysparam = data.record[i];
+                    	if(sysparam.PARAMCODE == '2001'){
+                    		mapurl = sysparam.PARAMVALUE;
+                    	}else if(sysparam.PARAMCODE == '2002'){
+                    		centerpoint = sysparam.PARAMVALUE;
+                    	}else if(sysparam.PARAMCODE == '2003'){
+                    		mapmaxlevel = sysparam.PARAMVALUE;
+                    	}else if(sysparam.PARAMCODE == '2004'){
+                    		initlevel = sysparam.PARAMVALUE;
+                    	}else if(sysparam.PARAMCODE == '2005'){
+                    		geoserverURL = sysparam.PARAMVALUE;
+                    	}
+                    }
+                    if(mapurl == null || mapurl == ""){
+                        alert("地图引擎配置错误!");
+                    }else{
+                        document.writeln("<SCRIPT type='text/javascript' src='"+mapurl+"'><\/SCRIPT>");
+                    }
+                    
+                }
+            }
+        };
+        request.open("POST", url, false);
+        request.send("");
+    } catch (exception) {
+        // alert("您要访问的资源不存在!");
+    }
+</script>
+
+</body>
+</html>

@@ -16,17 +16,24 @@ import com.jfinal.plugin.activerecord.ActiveRecordPlugin;
 public class _MappingKit {
 
 	public static void mapping(ActiveRecordPlugin arp) {
+		// Composite Primary Key order: ARCID,ARCID
 		arp.addMapping("ROUTE_ARC", "ARCID", Arc.class);
+		arp.addMapping("ROUTE_FORBIDDENTURN", "FTID", Forbiddenturn.class);
 		arp.addMapping("ROUTE_INTERSECTION", "INTSID", Intersection.class);
 		arp.addMapping("ROUTE_JOINPOINT", "POINTID", Joinpoint.class);
 		arp.addMapping("ROUTE_LANE", "LANENO", Lane.class);
 		arp.addMapping("ROUTE_LANE_RELATIONS", "LANENO", LaneRelations.class);
 		arp.addMapping("ROUTE_NODE", "NODEID", Node.class);
 		arp.addMapping("ROUTE_NODE_RELATIONS", "NODEID", NodeRelations.class);
+		// Composite Primary Key order: UUID,UUID
 		arp.addMapping("ROUTE_ROAD", "UUID", Road.class);
+		// Composite Primary Key order: UUID,UUID
 		arp.addMapping("ROUTE_ROADLINE", "UUID", Roadline.class);
+		// Composite Primary Key order: LINKID,LINKID
 		arp.addMapping("ROUTE_ROADLINK", "LINKID", Roadlink.class);
+		// Composite Primary Key order: SECTIONID,SECTIONID
 		arp.addMapping("ROUTE_SECTION", "SECTIONID", Section.class);
+		// Composite Primary Key order: SECTIONID,SECTIONID
 		arp.addMapping("ROUTE_UTC_SECTION", "SECTIONID", UtcSection.class);
 	}
 }

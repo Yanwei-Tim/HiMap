@@ -7,7 +7,7 @@ import com.hisense.himap.roadnet.model.Road;
 import com.hisense.himap.roadnet.service.RnQueryServiceImpl;
 import com.jfinal.core.Controller;
 
-public class RnQueryController extends Controller {
+public class RnQueryController extends BaseRnController {
 	
 	private RnQueryServiceImpl service = new RnQueryServiceImpl();
 	

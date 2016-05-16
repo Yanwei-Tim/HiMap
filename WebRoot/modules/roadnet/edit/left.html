@@ -3,9 +3,10 @@
 <hi:panel style="height: 100%;width:100%;">
 	<div>
 		<hi:listgroup style="border:0px" msResolved>
-			<a href="#" class="active">弧段方向调整</a>
-			<a href="#">节点维护</a>
-			<a href="#">弧段维护</a>
+			<a ms-repeat-el="leftattr.navis" ms-class="active:leftattr.currnavIdx == $index" ms-click="leftattr.naviClick(el,$index)">{{el.name}}</a>
+			<!-- <a href="#" name='editnode' ms-class="active:currnavIdx == $index" ms-on-click="leftnaviClick(this)">节点维护</a>
+			<a href="#" name='editarc' ms-class="active:currnavi" ms-on-click="leftnaviClick(this)">弧段维护</a>
+			<a href="#" name='arcdirection' ms-class="active:currnavi" ms-on-click="leftnaviClick(this)">弧段方向调整</a> -->
 		</hi:listgroup>
 	</div>
 </hi:panel>

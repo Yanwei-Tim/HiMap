@@ -18,7 +18,7 @@ import com.jfinal.kit.JsonKit;
 import com.jfinal.plugin.activerecord.Record;
 import com.jfinal.plugin.activerecord.tx.Tx;
 
-public class RnEditController extends Controller {
+public class RnEditController extends BaseRnController {
 	
 	private RnEditService editservice = enhance(RnEditService.class);
 	
@@ -88,6 +88,27 @@ public class RnEditController extends Controller {
 	}
 	
 	/**
+	 * 根据link批量生成路网信息
+	 */
+	public void initRoadLink(){
+		List<Record> list = editservice.getAllRoadLink();
+		System.out.println(list.size());
+		int i = 0;
+		for(Record record:list){
+			System.out.print(i+"  ");
+			i++;
+			Roadlink r = new Roadlink();
+			r.setStrcoords(record.getStr("strcoords"));
+			r.setRoadid(record.getStr("roadid"));
+			r.setViodldm(record.getStr("viodldm"));
+			r.setDirection(record.getStr("direction"));
+			editservice.insertRoadLink(r);
+		}
+		renderJson();
+		
+	}
+	
+	/**
 	 * 添加一条link
 	 */
 	public void addRoadLink(){
@@ -121,12 +142,14 @@ public class RnEditController extends Controller {
 		
 		setAttr("routenode",new Node().set("nodeid", node.getNodeid()).set("strcoords", node.getStrcoords()));
 		if(node.getNodeid()!=null && !node.getNodeid().equalsIgnoreCase("")){
-			NodeRelations nr = editservice.getNodeRelations(node);
-			setAttr("noderelations",new NodeRelations().set("nodeid", nr.getNodeid()).set("next_nodes", nr.getNextNodes()).set("ltztj", nr.getLtztj()));
-			setAttr("nearnodes",editservice.getNodeList(nr.getNextNodes().split(",")));
 			
+			setAttr("nearnodes",editservice.getNextNodes(node.getNodeid()));
+			
+			setAttr("ftlist",editservice.getForbiddenturn(node.getNodeid()));
+
 			List<Record> jplist = editservice.getJpInNode(node);
 			setAttr("joinpoints",jplist);
+			
 			List<Record> nearjplist = editservice.getJpNearNode(node,300d);
 			List<Record> list = new ArrayList<Record>();
 			for(Record record:nearjplist){
@@ -153,6 +176,19 @@ public class RnEditController extends Controller {
 		setAttr("result",this.editservice.insertJptoNode(nodeid, pointid));
 		renderJson();
 	}
+	public void rmJpfromNode(){
+		String nodeid = getPara("nodeid");
+		String pointid = getPara("pointid");
+		setAttr("result",this.editservice.rmJpfromNode(nodeid, pointid));
+		renderJson();
+	}
+	
+	/**
+	 * 合并
+	 */
+	public void MergeNodesFromPolygon(){
+		String polygon = getPara("polygon");
+	}
 	
 	public void updateNodeRelation(){
 		String nodeid = getPara("nodeid");
@@ -162,5 +198,45 @@ public class RnEditController extends Controller {
 		setAttr("result",this.editservice.updateNodeRelation(nodeid, fromnode, tonode, relation));
 		renderJson();
 	}
+	
+	public void getRouteArc(){
+		String strcoords = getPara("strcoords");
+		List<Record> result = this.editservice.getRouteArc(strcoords);
+		if(result.size()>0){
+			System.out.println(result.get(0).getStr("arcid"));
+			setAttr("result",result.get(0));
+		}else{
+			setAttr("result","");
+		}
+		renderJson();
+	}
+	
+	public void delArc(){
+		String arcid = getPara("arcid");
+		setAttr("result",this.editservice.delRouteArc(arcid));
+		renderJson();
+	}
+	
+	public void updateArcStrcoords(){
+		String arcid = getPara("arcid");
+		String strcoords = getPara("strcoords");
+		setAttr("result",this.editservice.updateArcStrcoords(arcid, strcoords));
+		renderJson();
+	}
+	
+	public void updateArcdirection(){
+		String arcid = getPara("arcid");
+		String direction = getPara("direction");
+		setAttr("result",this.editservice.updateArcDirection(arcid, Integer.parseInt(direction)));
+		renderJson();
+	}
+	
+	public void getSectionList(){
+		String sectionname = getPara("sectionname");
+		setAttr("record",this.editservice.getSectionList(sectionname));
+		renderJson();
+	}
+	
+	
 	
 }

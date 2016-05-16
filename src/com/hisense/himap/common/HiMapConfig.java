@@ -2,6 +2,7 @@ package com.hisense.himap.common;
 
 import com.hisense.himap.common.web.BaseController;
 import com.hisense.himap.roadnet.model._MappingKit;
+import com.hisense.himap.roadnet.web.RnAnalyController;
 import com.hisense.himap.roadnet.web.RnEditController;
 import com.hisense.himap.roadnet.web.RnQueryController;
 import com.jfinal.config.Constants;
@@ -28,6 +29,7 @@ public class HiMapConfig extends JFinalConfig {
 	public void configRoute(Routes me) {
 		me.add("/",BaseController.class);
 		me.add("/roadnet/query",RnQueryController.class);
+		me.add("/roadnet/analy",RnAnalyController.class);
 		me.add("/roadnet/edit",RnEditController.class);
 	}
 

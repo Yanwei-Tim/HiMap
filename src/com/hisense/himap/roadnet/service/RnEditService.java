@@ -29,7 +29,7 @@ import com.vividsolutions.jts.operation.buffer.BufferOp;
 import com.vividsolutions.jts.operation.buffer.BufferParameters;
 import com.vividsolutions.jts.operation.linemerge.LineMerger;
 
-public class RnEditService extends BaseService {
+public class RnEditService extends BaseRnService {
 	private static final Log4jLog log = Log4jLog.getLog(RnEditService.class);
 	
 	private static Double BUFFERSIZE = 0d;
@@ -61,6 +61,7 @@ public class RnEditService extends BaseService {
 			CROSSSIZE = Double.parseDouble(PropKit.get("CROSSSIZE"));
 		}
 		try {
+			a.setStrcoords(a.getStrcoords().replaceAll(" ", ""));
 			StringBuffer buff = new StringBuffer("");
 			buff.append("select r.arcid from route_arc r where to_char(r.strcoords)='").append(a.getStrcoords()).append("'");
 			List list = Db.find(buff.toString());
@@ -178,8 +179,6 @@ public class RnEditService extends BaseService {
 					Db.update(buff.toString());
 				}
 				
-				
-				
 				arc.setStartnode(startnode.getNodeid());
 				arc.setEndnode(endnode.getNodeid());
 				if(arc.getStartnode().equalsIgnoreCase(arc.getEndnode())){
@@ -195,106 +194,12 @@ public class RnEditService extends BaseService {
 					.append(arc.getArctype()).append("','").append(arc.getTrafficDir()).append("',")
 					.append("MDSYS.SDO_GEOMETRY(2002,8307,null,MDSYS.SDO_ELEM_INFO_ARRAY(1,2,1),MDSYS.SDO_ORDINATE_ARRAY(").append(arc.getStrcoords())
 					.append(")))");
+				//System.out.println(buff.toString());
 				Db.update(buff.toString());
 				
 				//连通关系
-				if(arc.getArctype().equalsIgnoreCase("0") && ( arc.getTrafficDir().equalsIgnoreCase("0")||arc.getTrafficDir().equalsIgnoreCase("2"))){
-					// 更新nodeid=startnode，nodex_nodes字段添加endnode
-					buff.delete(0, buff.toString().length());
-					buff.append("select r.nodeid,r.next_nodes,r.next_arcs,r.ltztj from ROUTE_NODE_RELATIONS r where r.nodeid='").append(startnode.getNodeid()).append("'");
-					L = Db.find(buff.toString());
-					if(L == null || L.size()<=0){
-						buff.delete(0, buff.toString().length());
-						buff.append("insert into route_node_relations(nodeid,next_nodes,next_arcs,ltztj) values('")
-							.append(startnode.getNodeid()).append("','")
-							.append(endnode.getNodeid()).append("','")
-							.append(arc.getArcid()).append("','")
-							.append(arc.getTrafficDir().equalsIgnoreCase("2")?"1":"0")
-							.append("')");
-						Db.update(buff.toString());
-					}else{
-						Record record = L.get(0);
-						String[] nextnodes = record.getStr("next_nodes").split(",");
-						
-						Boolean isflag = false;
-						for(String nnode:nextnodes){
-							if(nnode.equalsIgnoreCase(endnode.getNodeid())){
-								isflag = true;
-								break;
-							}
-						}
-						if(!isflag){
-							record.set("next_nodes", record.getStr("next_nodes")+","+endnode.getNodeid());
-							record.set("next_arcs", record.getStr("next_arcs")+","+arc.getArcid());
-							String[] ltztArr = record.getStr("ltztj").split(",");
-							String newltzt = "";
-							String addltzt = "";
-							for(String ltzt:ltztArr){
-								ltzt +="1";
-								newltzt +=ltzt+",";
-								addltzt+=arc.getTrafficDir().equalsIgnoreCase("2")?"1":"0";
-							}
-							addltzt+=arc.getTrafficDir().equalsIgnoreCase("2")?"1":"0";
-							newltzt+=addltzt;
-							buff.delete(0, buff.toString().length());
-							buff.append("update route_node_relations r set r.ltztj='").append(newltzt)
-								.append("',r.next_nodes='").append(record.get("next_nodes"))
-								.append("',r.next_arcs='").append(record.get("next_arcs"))
-								.append("' where r.nodeid='").append(record.getStr("nodeid")).append("'");
-							Db.update(buff.toString());
-						}
-						
-					}
-					
-				}
-				if(arc.getArctype().equalsIgnoreCase("0") && ( arc.getTrafficDir().equalsIgnoreCase("1")||arc.getTrafficDir().equalsIgnoreCase("2"))){
-					//更新nodeid=endnode，nodex_nodes字段添加startnode
-					buff.delete(0, buff.toString().length());
-					buff.append("select r.nodeid,r.next_nodes,r.next_arcs,r.ltztj from ROUTE_NODE_RELATIONS r where r.nodeid='").append(endnode.getNodeid()).append("'");
-					L = Db.find(buff.toString());
-					if(L == null || L.size()<=0){
-						buff.delete(0, buff.toString().length());
-						buff.append("insert into route_node_relations(nodeid,next_nodes,next_arcs,ltztj) values('")
-							.append(endnode.getNodeid()).append("','")
-							.append(startnode.getNodeid()).append("','")
-							.append(arc.getArcid()).append("','")
-							.append(arc.getTrafficDir().equalsIgnoreCase("2")?"1":"0")
-							.append("')");
-						Db.update(buff.toString());
-					}else{
-						Record record = L.get(0);
-						String[] nextnodes = record.getStr("next_nodes").split(",");
-						
-						Boolean isflag = false;
-						for(String nnode:nextnodes){
-							if(nnode.equalsIgnoreCase(startnode.getNodeid())){
-								isflag = true;
-								break;
-							}
-						}
-						if(!isflag){
-							record.set("next_nodes", record.getStr("next_nodes")+","+startnode.getNodeid());
-							record.set("next_arcs", record.getStr("next_arcs")+","+arc.getArcid());
-							String[] ltztArr = record.getStr("ltztj").split(",");
-							String newltzt = "";
-							String addltzt = "";
-							for(String ltzt:ltztArr){
-								ltzt +="1";
-								newltzt +=ltzt+",";
-								addltzt+=arc.getTrafficDir().equalsIgnoreCase("2")?"1":"0";
-							}
-							addltzt+=arc.getTrafficDir().equalsIgnoreCase("2")?"1":"0";
-							newltzt+=addltzt;
-							buff.delete(0, buff.toString().length());
-							buff.append("update route_node_relations r set r.ltztj='").append(newltzt)
-								.append("',r.next_nodes='").append(record.get("next_nodes"))
-								.append("',r.next_arcs='").append(record.get("next_arcs"))
-								.append("' where r.nodeid='").append(record.getStr("nodeid")).append("'");
-							Db.update(buff.toString());
-						}
-						
-					}
-				}
+				this.genNodeRelation(arc.getStartnode());
+				this.genNodeRelation(arc.getEndnode());
 				
 			}
 			
@@ -317,8 +222,8 @@ public class RnEditService extends BaseService {
 		try{
 			Node node;
 			String sql = "SELECT * from route_node r WHERE SDO_WITHIN_DISTANCE(r.geometry,mdsys.sdo_geometry(2001,8307, MDSYS.SDO_POINT_TYPE("+
-							joinpoint+",0), null,  null),'distance="+CROSSSIZE+" querytype=WINDOW') = 'TRUE'";
-			System.out.println(sql);
+							joinpoint+",0), null,  null),'distance="+CROSSSIZE+" querytype=WINDOW') = 'TRUE' order by SDO_GEOM.sdo_distance("
+							+"r.geometry,mdsys.sdo_geometry(2001,8307, MDSYS.SDO_POINT_TYPE("+joinpoint+",0), null,  null),1)";
 			List<Node> list = Node.dao.find(sql);
 			if(list!=null && list.size()>0){
 				node = list.get(0);
@@ -363,7 +268,7 @@ public class RnEditService extends BaseService {
 		}
 		condition = condition.substring(0,condition.length()-1)+")";
 		String sql = "select r.nodeid,r.strcoords from route_node r where r.nodeid "+condition;
-		System.out.println(sql);
+		//System.out.println(sql);
 		List list = Db.find(sql);
 		return list;
 	}
@@ -374,14 +279,18 @@ public class RnEditService extends BaseService {
 	 * @return
 	 */
 	public List getJpInNode(Node node){
-		String[] points = node.getJoinpoints().split(",");
+		if(node == null || node.getJoinpoints() == null){
+			return new ArrayList();
+		}
+		String[] points = node.getJoinpoints() == null?null:node.getJoinpoints().split(",");
+		
 		String condition = "in(";
 		for(int i=0;i<points.length/2;i++){
 			condition+="'"+points[i*2]+","+points[i*2+1]+"',";
 		}
 		condition = condition.substring(0,condition.length()-1)+")";
 		String sql = "select r.pointid,r.strcoords,r.cross_arcs from route_joinpoint r where r.strcoords "+condition;
-		System.out.println(sql);
+		//System.out.println(sql);
 		List list = Db.find(sql);
 		return list;
 	}
@@ -399,7 +308,7 @@ public class RnEditService extends BaseService {
 	}
 	
 	public String insertJptoNode(String nodeid,String pointid){
-		Node node = this.getNodeByJoinPoint(pointid);
+		Node node = this.getNodeByJoinPoint(Joinpoint.dao.findById(pointid).getStrcoords());
 		if(node.getNodeid()!=null){
 			this.rmJpfromNode(node.getNodeid(), pointid);
 		}
@@ -420,81 +329,147 @@ public class RnEditService extends BaseService {
 			buff.delete(0, buff.toString().length());
 			if(record.getStr("strcoords").startsWith(jp.getStrcoords())){
 				buff.append("update route_arc r set r.startnode = ? where r.arcid=?");
-				if(record.getStr("traffic_dir").equalsIgnoreCase("0")){
-					newNodeMap.put(record.getStr("endnode"), 0); //都能到达
-				}else if(record.getStr("traffic_dir").equalsIgnoreCase("1")){
-					newNodeMap.put(record.getStr("endnode"), 1); //都能出发
-				}else if(record.getStr("traffic_dir").equalsIgnoreCase("2")){
-					newNodeMap.put(record.getStr("endnode"), 2);
-				}
 			}else{
 				buff.append("update route_arc r set r.endnode = ? where r.arcid=?");
-				if(record.getStr("traffic_dir").equalsIgnoreCase("0")){
-					newNodeMap.put(record.getStr("startnode"), 1); //都能到达
-				}else if(record.getStr("traffic_dir").equalsIgnoreCase("1")){
-					newNodeMap.put(record.getStr("startnode"), 0); //都能出发
-				}else if(record.getStr("traffic_dir").equalsIgnoreCase("2")){
-					newNodeMap.put(record.getStr("startnode"), 2);
-				}
 			}
 			Db.update(buff.toString(),nodeid,record.getStr("arcid"));
 		}
 		
 		//更新连通关系表
-		NodeRelations  relation = getNodeRelations(node);
-		String[] nextnodes = relation.getNextNodes().split(",");
-		String[] ltztj = relation.getLtztj().split(",");
-		Iterator iter = newNodeMap.keySet().iterator();
-		Map<String,Integer> insertrelation = new HashMap<String,Integer>();
-		while(iter.hasNext()){
-			Boolean hasnode = false;
-			String nextnodeid = iter.next().toString();
-			for(String nextnode: nextnodes){
-				if(nextnodeid.equalsIgnoreCase(nextnode)){
-					hasnode = true;
-					break;
-				}
-			}
-			if(!hasnode){
-				insertrelation.put(nextnodeid, newNodeMap.get(nextnodeid));
-			}
-		}
-		
-		Map<String,String> afterrelation = new HashMap<String,String>();
+		this.genNodeRelation(nodeid);
 		
 		return "success";
 	}
 	
-	public String updateNodeRelation(String nodeid,String fromnode,String tonode,String relation){
-		NodeRelations  noderelation = NodeRelations.dao.findById(nodeid);
-		String[] nextnodes = noderelation.getNextNodes().split(",");
-		String[] ltztj = noderelation.getLtztj().split(",");
-		int from = 0;
-		int to = 0;
-		for(int i=0;i<nextnodes.length;i++){
-			if(nextnodes[i].equalsIgnoreCase(fromnode)){
-				from = i;
-			}
-			if(nextnodes[i].equalsIgnoreCase(tonode)){
-				to = i;
-			}
-		}
-		String ltgx = "";
-		for(int i=0;i<ltztj[from].length();i++){
-			if(i == to){
-				ltgx+=relation;
-			}else{
-				ltgx+=ltztj[from].substring(i,i+1);
-			}
-		}
-		ltztj[from] = ltgx;
-		String ltztjstr = "";
-		for(String ltgxa:ltztj){
-			ltztjstr += ltgxa+",";
-		}
+	/**
+	 * 生成节点连通关系
+	 * @param nodeid 节点编号
+	 * @return
+	 */
+	public String genNodeRelation(String nodeid){
+		/*Map<String,String> nextnodeMap = new HashMap<String,String>();
 		StringBuffer buff = new StringBuffer("");
-		buff.append("update route_node_relations r set r.ltztj = ?  where r.nodeid=?");
-		Db.update(buff.toString(), ltztjstr.substring(0,ltztjstr.length()-1),nodeid);
+		buff.append("delete from route_node_relations r where r.nodeid=?");
+		Db.update(buff.toString(),nodeid);
+		
+		buff.delete(0, buff.toString().length());
+		buff.append("select * from route_arc a where a.startnode = ? or a.endnode = ?");
+		List<Record> nodelist = Db.find(buff.toString(),nodeid,nodeid);
+		String allarcs = "";
+		for(Record record:nodelist){
+			String nextnodeid = "";
+			String relation = "";
+			if(record.getStr("startnode") == null || record.getStr("endnode") == null){
+				continue;
+			}
+			if(record.getStr("startnode").equalsIgnoreCase(nodeid)){
+				nextnodeid = record.getStr("endnode");
+				if(record.getStr("traffic_dir").equalsIgnoreCase("0")){
+					relation = "arrive";
+				}else if(record.getStr("traffic_dir").equalsIgnoreCase("1")){
+					relation = "leave";
+				}else if(record.getStr("traffic_dir").equalsIgnoreCase("2")){
+					relation = "all";
+				}else if(record.getStr("traffic_dir").equalsIgnoreCase("3")){
+					relation = "none";
+				}
+			}else{
+				nextnodeid = record.getStr("startnode");
+				if(record.getStr("traffic_dir").equalsIgnoreCase("0")){
+					relation = "leave";
+				}else if(record.getStr("traffic_dir").equalsIgnoreCase("1")){
+					relation = "arrive";
+				}else if(record.getStr("traffic_dir").equalsIgnoreCase("2")){
+					relation = "all";
+				}else if(record.getStr("traffic_dir").equalsIgnoreCase("3")){
+					relation = "none";
+				}
+			}
+			String noderelation = nextnodeMap.get(nextnodeid);
+			if(noderelation == null || noderelation.equals("")){
+				noderelation = "arrive:0;leave:0";
+			}
+			if(relation.equalsIgnoreCase("arrive")){
+				noderelation = "arrive:1;"+noderelation.split(";")[1];
+			}else if(relation.equalsIgnoreCase("leave")){
+				noderelation = noderelation.split(";")[0]+";leave:1";
+			}else if(relation.equalsIgnoreCase("all")){
+				noderelation = "arrive:1;leave:1";
+			}
+			nextnodeMap.put(nextnodeid, noderelation);
+			allarcs +=record.getStr("arcid")+",";
+		}
+		if(allarcs.length()<=1){
+			return "success";
+		}
+		allarcs = allarcs.substring(0,allarcs.length()-1);
+		
+		buff.delete(0, buff.toString().length());
+		buff.append("select * from route_forbiddenturn a where a.crossnode = ?");
+		List<Record> forblist = Db.find(buff.toString(),nodeid);
+		
+		Iterator iter = nextnodeMap.keySet().iterator();
+		String nextnodes = "";
+		String allrelation = "";
+		String allnodes = "";
+		while(iter.hasNext()){
+			String fromnode = iter.next().toString();
+			String fnrelation = nextnodeMap.get(fromnode);
+			String relation = "";
+			Iterator siter = nextnodeMap.keySet().iterator();
+			while(siter.hasNext()){
+				String tonode = siter.next().toString();
+				String tnrelation = nextnodeMap.get(tonode);
+				Boolean forbflag = false;
+				for(Record forb:forblist){
+					if(forb.getStr("fromnode").equalsIgnoreCase(fromnode) && forb.getStr("tonode").equalsIgnoreCase(tonode)){
+						forbflag = true;
+						break;
+					}
+				}
+				if(!forbflag && fnrelation.split(";")[1].split(":")[1].equalsIgnoreCase("1") && tnrelation.split(";")[0].split(":")[1].equalsIgnoreCase("1")){
+					relation+="1";
+				}else{
+					relation+="0";
+				}
+			}
+			allrelation+=relation+",";
+			allnodes+=fromnode+",";
+		}
+		allrelation = allrelation.substring(0,allrelation.length()-1);
+		allnodes = allnodes.substring(0,allnodes.length()-1);
+		buff.delete(0, buff.toString().length());
+		buff.append("insert into route_node_relations(nodeid,next_nodes,next_arcs,ltztj) values(?,?,?,?)");
+		//System.out.println(nodeid+"--"+allnodes+"--"+allarcs+"--"+allrelation);
+		Db.update(buff.toString(),nodeid,allnodes,allarcs,allrelation);*/
+		
+		return "success";
+	}
+	
+	/**
+	 * 更新一条连通关系 
+	 * @param nodeid
+	 * @param fromnode
+	 * @param tonode
+	 * @param relation
+	 * @return
+	 */
+	public String updateNodeRelation(String nodeid,String fromnode,String tonode,String relation){
+		StringBuffer buff = new StringBuffer("");
+		if(relation.equalsIgnoreCase("0")){
+			buff.append("insert into route_forbiddenturn(ftid,crossnode,fromnode,tonode) values('")
+				.append(UUID.randomUUID().toString().replaceAll("-", "")).append("','")
+				.append(nodeid).append("','")
+				.append(fromnode).append("','")
+				.append(tonode).append("')");
+		}else{
+			buff.append("delete from route_forbiddenturn r where r.crossnode='")
+				.append(nodeid).append("' and r.fromnode='")
+				.append(fromnode).append("' and r.tonode = '")
+				.append(tonode).append("'");
+		}
+		Db.update(buff.toString());
+		this.genNodeRelation(nodeid);
 		return "success";
 	}
 	
@@ -504,17 +479,25 @@ public class RnEditService extends BaseService {
 	 * @param pointid
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public String rmJpfromNode(String nodeid,String pointid){
 		//节点表处理 删除连接点字段里的记录
 		StringBuffer buff = new StringBuffer("");
 		Node node = Node.dao.findById(nodeid);
 		List<Record> jpList = this.getJpInNode(node);
+		if(jpList.size()<=0){
+			return "success";
+		}
 		String newjpstr = "";
+		String jpstr = Joinpoint.dao.findById(pointid).getStrcoords();
 		for(Record record:jpList){
 			if(record.getStr("pointid").equalsIgnoreCase(pointid)){
 				continue;
 			}
 			newjpstr+=record.getStr("strcoords")+",";
+		}
+		if(newjpstr.length()<=1){
+			return "success";
 		}
 		newjpstr = newjpstr.substring(0,newjpstr.length()-1);
 		buff.append("update route_node r set r.joinpoints = ? where r.nodeid=?");
@@ -522,67 +505,17 @@ public class RnEditService extends BaseService {
 		
 		//弧段表处理
 		buff.delete(0, buff.toString().length());
-		buff.append("select * from route_arc a where a.startnode = ? or a.endnode = ?");
-		List<Record> arcList = Db.find(buff.toString(), node.getNodeid(),node.getNodeid());
-		List<String> tonodeList = new ArrayList<String>();
-		List<String> fromnodeList = new ArrayList<String>();
-		for(Record arc:arcList){
-			buff.delete(0, buff.toString().length());
-			if(arc.getStr("startnode").equalsIgnoreCase(node.getNodeid())){
-				if(arc.getStr("traffic_dir").equalsIgnoreCase("0")){
-					tonodeList.add(arc.getStr("endnode"));
-				}else if(arc.getStr("traffic_dir").equalsIgnoreCase("1")){
-					fromnodeList.add(arc.getStr("endnode"));
-				}else if(arc.getStr("traffic_dir").equalsIgnoreCase("2")){
-					fromnodeList.add(arc.getStr("endnode"));
-					tonodeList.add(arc.getStr("endnode"));
-				}
-				buff.append("update route_arc r set r.startnode = null where r.arcid=?");
-			}else{
-				buff.append("update route_arc r set r.endnode = null where r.arcid=?");
-				if(arc.getStr("traffic_dir").equalsIgnoreCase("0")){
-					fromnodeList.add(arc.getStr("startnode"));
-				}else if(arc.getStr("traffic_dir").equalsIgnoreCase("1")){
-					tonodeList.add(arc.getStr("startnode"));
-				}else if(arc.getStr("traffic_dir").equalsIgnoreCase("2")){
-					fromnodeList.add(arc.getStr("startnode"));
-					tonodeList.add(arc.getStr("startnode"));
-				}
-			}
-			Db.update(buff.toString(),arc.getStr("arcid"));
-		}
+		String geomstr = GISUtils.genGeomStr(jpstr, "point");
+		//System.out.println(geomstr);
+		buff.append("update route_arc r set r.startnode = null where r.startnode = ? and SDO_WITHIN_DISTANCE(r.geometry,"+geomstr+",'distance=1 querytype=window')='TRUE'");
+		Db.update(buff.toString(),nodeid);
+		buff.delete(0, buff.toString().length());
+		buff.append("update route_arc r set r.endnode = null where r.endnode = ? and SDO_WITHIN_DISTANCE(r.geometry,"+geomstr+",'distance=1 querytype=window')='TRUE'");
+		Db.update(buff.toString(),nodeid);
 		
 		
 		//连通关系表处理
-		NodeRelations  relation = getNodeRelations(node);
-		String[] nextnodes = relation.getNextNodes().split(",");
-		String[] ltztj = relation.getLtztj().split(",");
-		for(int i=0;i<nextnodes.length;i++){
-			for(String fromnode:fromnodeList){
-				if(fromnode.equalsIgnoreCase(nextnodes[i])){
-					ltztj[i] = ltztj[i].replaceAll("1", "0");
-					break;
-				}
-			}
-			for(String tonode:tonodeList){
-				if(tonode.equalsIgnoreCase(nextnodes[i])){
-					for(int m = 0;m<ltztj.length;m++){
-						if(i<1){
-							ltztj[m] = "0"+ltztj[m].substring(i+1);
-						}else{
-							ltztj[m] = ltztj[m].substring(0,i-1)+"0"+ltztj[m].substring(i+1);
-						}
-					}
-				}
-			}
-		}
-		String ltztjstr = "";
-		for(String ltgx:ltztj){
-			ltztjstr += ltgx+",";
-		}
-		buff.delete(0, buff.toString().length());
-		buff.append("update route_node_relations r set r.ltztj = ? where r.nodeid=?");
-		Db.update(buff.toString(), ltztjstr.substring(0,ltztjstr.length()-1),nodeid);
+		this.genNodeRelation(nodeid);
 		return "success";
 	}
 	
@@ -693,6 +626,45 @@ public class RnEditService extends BaseService {
 		return arcList;
 	}
 	
+	public List getRouteArc(String strcoords){
+		List<Record> result = null;
+		StringBuffer buff = new StringBuffer("");
+		String geomstr = GISUtils.genGeomStr(strcoords, "point");
+		buff.append("select a.arcid,a.strcoords,a.traffic_dir from route_arc a where SDO_WITHIN_DISTANCE(a.geometry,"+geomstr+",'distance=10 querytype=WINDOW') = 'TRUE' order by SDO_GEOM.sdo_distance(a.geometry,"+geomstr+",1)");
+		//System.out.println(buff.toString());
+		result = Db.find(buff.toString());
+		return result;
+	}
+	
+	public String delRouteArc(String arcid){
+		Arc arc = Arc.dao.findById(arcid);
+		if(arc==null){
+			return "success";
+		}
+		String[] strcoords = arc.getStrcoords().split(",");
+		String startpoint = strcoords[0]+","+strcoords[1];
+		String endpoint = strcoords[strcoords.length-2]+","+strcoords[strcoords.length-1];
+		this.rmJpfromNode(arc.getStartnode(), this.getJpByStrcoords(startpoint).getStr("pointid"));
+		this.rmJpfromNode(arc.getEndnode(), this.getJpByStrcoords(endpoint).getStr("pointid"));
+		
+		String sql = "delete from route_arc r where r.arcid=?";
+		Db.update(sql,arcid);
+		return "success";
+	}
+	
+	
+	public Record getJpByStrcoords(String strcoords){
+		List<Record> result = null;
+		StringBuffer buff = new StringBuffer("");
+		String geomstr = GISUtils.genGeomStr(strcoords, "point");
+		buff.append("select * from route_joinpoint r where SDO_WITHIN_DISTANCE(r.geometry,"+geomstr+",'distance=0.01 querytype=WINDOW') = 'TRUE' order by SDO_GEOM.sdo_distance(r.geometry,"+geomstr+",1)");
+		result = Db.find(buff.toString());
+		if(result.size()>0){
+			return result.get(0);
+		}else{
+			return new Record();
+		}
+	}
 	
 	
 	/**
@@ -703,7 +675,7 @@ public class RnEditService extends BaseService {
 		try {
 			//log.info("查询原始数据");
             //String sql = "SELECT r.roadid,r.linkid,r.strcoords,r.viodldm,r.direction from route_roadlink r where r.formatlevel='1' and  r.viodldm IN(SELECT c.dldm FROM vio_coderoad c WHERE c.xzqh IN('370200','370202')) order by r.roadid,SDO_GEOM.sdo_distance(r.geometry,mdsys.sdo_geometry(2001,8307,MDSYS.SDO_POINT_TYPE(1,1,0),null,null),1)";
-            String sql = "SELECT r.roadid,r.linkid,r.strcoords,r.viodldm,r.direction from route_roadlink r where r.formatlevel='0' and  sdo_relate(r.geometry, MDSYS.SDO_GEOMETRY(2002, 8307,NULL,MDSYS.SDO_ELEM_INFO_ARRAY(1,1003,3),MDSYS.SDO_ORDINATE_ARRAY(120.28222,36.04614,120.5249,36.2395)), 'mask=OVERLAPBDYDISJOINT+INSIDE' ) ='TRUE'";
+            String sql = "SELECT r.roadid,r.linkid,r.strcoords,r.viodldm,r.direction from route_roadlink r where r.formatlevel='1' and  sdo_relate(r.geometry, MDSYS.SDO_GEOMETRY(2002, 8307,NULL,MDSYS.SDO_ELEM_INFO_ARRAY(1,1003,3),MDSYS.SDO_ORDINATE_ARRAY(120.28112,36.04602,120.39392,36.09655)), 'mask=OVERLAPBDYDISJOINT+INSIDE' ) ='TRUE'";
             List<Record> result = Db.find(sql);
             return result;
         } catch (Exception e) {
@@ -719,12 +691,15 @@ public class RnEditService extends BaseService {
 	 * @return 
 	 */
 	public String updateArcDirection(String arcid,int direction){
-		if(null == arcid || arcid.length()<=0 || direction>2 || direction<-1){
+		Arc arc = Arc.dao.findById(arcid);
+		if(null == arcid || arcid.length()<=0 || direction>3 || direction<-1){
 			return "参数传递错误";
 		}
 		String sql = "update route_arc a set a.traffic_dir = ? where a.arcid=?";
 		try{
 			Db.update(sql,direction, arcid);
+			this.genNodeRelation(arc.getStartnode());
+			this.genNodeRelation(arc.getEndnode());
 		}catch(Exception e){
 			return "更新数据出错";
 		}
@@ -741,13 +716,22 @@ public class RnEditService extends BaseService {
 		if(null == arcid || arcid.length()<=0 || null == strcoords || strcoords.length()<=0){
 			return "参数传递错误";
 		}
-		String geomstr = GISUtils.genGeomStr(strcoords,"line");
-		String sql = "update route_arc a set a.strcoords = ?,a.geometry = ? where a.arcid=?";
+		Arc arc = Arc.dao.findById(arcid);
+		Roadlink r = new Roadlink();
+		r.setStrcoords(strcoords);
+		r.setRoadid(arc.getRoadcode());
+		r.setViodldm(arc.getRoadcode());
+		r.setDirection(arc.getTrafficDir());
+		this.delRouteArc(arcid);
+		this.insertRoadLink(r);
+		
+		/*String geomstr = GISUtils.genGeomStr(strcoords,"line");
+		String sql = "update route_arc a set a.strcoords = ?,a.geometry = "+geomstr+" where a.arcid=?";
 		try{
 			Db.update(sql,strcoords,geomstr, arcid);
 		}catch(Exception e){
 			return "更新数据出错";
-		}
+		}*/
 		return "success";
 	}
 	
@@ -776,6 +760,22 @@ public class RnEditService extends BaseService {
 			return "更新数据出错";
 		}
 	}
+	
+	/**
+	 * 获取路段列表
+	 * @param sectionname 路段名称
+	 * @return
+	 */
+	public List getSectionList(String sectionname){
+		String sql = "select r.sectionid,r.sectionname,r.arcs from route_section r ";
+		if(sectionname!=null && sectionname.length()>0){
+			sql += " where r.sectionname like '%"+sectionname+"%'";
+		}
+		List list = Db.find(sql);
+		return list;
+	}
+	
+	
 	
 	/**
 	 * 合并原始link数据
@@ -831,7 +831,7 @@ public class RnEditService extends BaseService {
     			}
     			
     		}
-    		System.out.println(mergedLineStrings.size());
+    		//System.out.println(mergedLineStrings.size());
         } catch (Exception e) {
             e.printStackTrace();
         }
