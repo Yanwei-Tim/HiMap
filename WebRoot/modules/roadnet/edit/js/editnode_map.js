@@ -1,13 +1,13 @@
 define(["vendor/himap/x/WMSTileLayer"],function (WMSTileLayer){
 	var facilegendfunc;
 	function showWMS(){
-	    /*var url = geoserverURL+"/sde/wms?REQUEST=GetMap&VERSION=1.1.0&FORMAT=image/png&SERVICE=WMS&LAYERS=sde:ROUTE_ARC";
-		var facilegendfunc2=new WMSTileLayer('tilewms',url);
-		facilegendfunc2.show();*/
-		
-		var url = geoserverURL+"/sde/wms?REQUEST=GetMap&VERSION=1.1.0&FORMAT=image/png&SERVICE=WMS&LAYERS=sde:ROUTE_NODE";
-		facilegendfunc=new WMSTileLayer('tilewms',url);
+	    var url = geoserverURL+"/sde/wms?REQUEST=GetMap&VERSION=1.1.0&FORMAT=image/png&SERVICE=WMS&LAYERS=sde:ROUTE_NODE";
+		var facilegendfunc=new WMSTileLayer('tilewms',url);
 		facilegendfunc.show();
+		
+		/*var url = geoserverURL+"/sde/wms?REQUEST=GetMap&VERSION=1.1.0&FORMAT=image/png&SERVICE=WMS&LAYERS=sde:ROUTE_NODE";
+		facilegendfunc=new WMSTileLayer('tilewms',url);
+		facilegendfunc.show();*/
 	}
 	function closeWMS(){
 		facilegendfunc.close();

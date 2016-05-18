@@ -17,6 +17,9 @@
            _MapApp.map.hideMapControl();
            _MapApp.map.hideMapServer();
            _MapApp.centerAndZoom(new Point(120.38013,36.08662), 3);
+           if(typeof(window.parent.onMapInit)!='undefined'){
+           		window.parent.onMapInit.call(window.parent,event);
+           }
            
        }
         function mapclick(){

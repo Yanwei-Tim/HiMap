@@ -270,20 +270,6 @@ define([], function() {
         this.showMonitorByXML = function (strxml) {};
 
 
-        //同时显示多个地图元素
-        this.showMuliObj = function (markers, callback) {
-
-        };
-
-        //删除多个地图元素,根据模板名称
-        this.removeMuliObj = function (templateid) {
-
-        };
-
-        //同时显示多个设备,按需加载，只展示视野范围内的设备
-        this.showMultDevice = function (markerArr, callback, id) {};
-
-
         /**
          * 显示一条线
          *strCoords 坐标点集合
@@ -559,6 +545,6 @@ define([], function() {
         };
     };
     
-    return null;
+    return HiMap;
 
 });

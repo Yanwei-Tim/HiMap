@@ -469,7 +469,7 @@ public class RnEditService extends BaseRnService {
 				.append(tonode).append("'");
 		}
 		Db.update(buff.toString());
-		this.genNodeRelation(nodeid);
+		//this.genNodeRelation(nodeid);
 		return "success";
 	}
 	

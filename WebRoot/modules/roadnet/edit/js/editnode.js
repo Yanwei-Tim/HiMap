@@ -102,6 +102,28 @@ function getAjaxNodeInfo(strcoords,callback){
 				nearjoinpoints = data.nearjoinpoints; //节点周围的连接点
 				nearnodes = data.nearnodes;//下一结点
 				ftlist = data.ftlist; //禁止转向关系
+				for(var i=0;i<nearnodes.length;i++){
+					var currnode = nearnodes[i];
+					nearnodes[i].routenode = routenode;
+					currnode.ltzt = [];
+					for(var j=0;j<nearnodes.length;j++){
+						var tonode = nearnodes[j];
+						var ltzt = {};
+						ltzt.strcoords = tonode.STRCOORDS;
+						ltzt.ltzt = "1";
+						ltzt.nodeid = tonode.NODEID;
+						if(null!=ftlist && ftlist.length>0){
+							for(var m=0;m<ftlist.length;m++){
+								if(ftlist[m].FROMNODE == currnode.NODEID && ftlist[m].TONODE == tonode.NODEID){
+									ltzt.ltzt = "0";
+									break;
+								}
+							}
+						}
+						currnode.ltzt.push(ltzt);
+						
+					}
+				}
 				
 				if(null!=callback){
 					callback.call();
