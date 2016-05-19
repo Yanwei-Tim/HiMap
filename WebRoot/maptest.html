@@ -1,0 +1,29 @@
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:v ="urn:schemas-microsoft-com:vml">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=gbk"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <script src="http://10.16.5.203/himap.js" maptype = "pgis" onready = "mapready"></script>
+    <title>地图测试页</title>
+    <style>
+       
+    </style>
+    <script>
+    	function mapready(){
+    		alert(document.getElementById("map"));
+    		var _MapApp = new HiMap(document.getElementById("map"));
+    		_MapApp.addControl();
+    		_MapApp.centerAndZoom("120.38013,36.08662", 3);
+    	}
+    </script>
+</head>
+
+<bodystyle="overflow-x:hidden;overflow-y:hidden">
+aaaaa
+<div id="map" style="top: 1px; left: 0px; border-bottom: 0px;"></div>
+</body>
+
+
+</html>

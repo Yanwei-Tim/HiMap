@@ -1,5 +1,16 @@
 define([],function(){
 	
+	function createHttpRequest() {
+		 var request; 
+	     if (window.ActiveXObject) {
+	          request = new ActiveXObject("Microsoft.XMLHTTP");
+	     } else if (window.XMLHttpRequest) {
+	          request = new XMLHttpRequest();
+	     }
+	     return request;
+	}
+	
+	
 	var Tools = function(){
 		/**
 		*反转坐标
@@ -24,6 +35,31 @@ define([],function(){
 			 mousePosition.y = e.clientY+document.body.scrollTop+document.documentElement.scrollTop-o.scrollLeft;
 			 return mousePosition;
 		}
+		
+		this.sendAjax = function(url,callback,async){
+			async = async||false;
+			var request = createHttpRequest();
+			try {
+				request.onreadystatechange = function(){
+					if (request.readyState == 4) {
+						var data = "";
+						if (request.status == 200 || request.status == 0) {
+							if (typeof(JSON) == 'undefined'){
+								data = eval("("+request.responseText+")");
+							}else{
+								data = JSON.parse(request.responseText);
+							}
+							callback.call(this,data);
+							
+						}
+					}
+				};
+				request.open("POST", url, false);
+				request.send("");
+			} catch (exception) {
+				 //alert("!");
+			}
+		};
 		
 		
 	}

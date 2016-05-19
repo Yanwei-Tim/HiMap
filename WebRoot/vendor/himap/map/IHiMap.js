@@ -1,14 +1,19 @@
-(function () {
-
-    //空方法
+/**
+ * Created by liuxiaobing on 2016-1-5.
+ */
+define([], function() {
+	//空方法
     function noop(){}
-
-
-
-    var IHiMap = function (mapdiv,mapInitParams) {
+    
+	var HiMap = function (mapdiv,mapInitParams) {
 		this.mapdiv = mapdiv;
 		this.mapInitParams = mapInitParams;
         this.map = null;
+        this.mapurl = "";
+        this.centerpoint = "";
+        this.mapmaxlevel = "";
+        this.initlevel = "";
+        this.geoserverURL = "";
 
         /*************************************PGIS 接口部分******************************************/
         /**地图控件**/
@@ -149,6 +154,8 @@
 
         //删除地图状态变化时执行的操作，func为函数
         this.removeMapChangeListener = function (func){};
+        
+        
 
         /*************************************自定义接口部分******************************************/
         /**
@@ -270,20 +277,6 @@
         this.showMonitorByXML = function (strxml) {};
 
 
-        //同时显示多个地图元素
-        this.showMuliObj = function (markers, callback) {
-
-        };
-
-        //删除多个地图元素,根据模板名称
-        this.removeMuliObj = function (templateid) {
-
-        };
-
-        //同时显示多个设备,按需加载，只展示视野范围内的设备
-        this.showMultDevice = function (markerArr, callback, id) {};
-
-
         /**
          * 显示一条线
          *strCoords 坐标点集合
@@ -345,7 +338,7 @@
 
         /************信息查询接口**************/
 
-            //点查询
+        //点查询
         this.queryPoint = function (strCoords, callback) {};
 
         /**
@@ -471,49 +464,7 @@
 
         };
 
-        /**轨迹回放
-         *ioverlay 轨迹回放的图层
-         *strCoords 轨迹,如:"116.3,39.4,116.5,39.4"
-         *start 开始节点
-         *end 结束节点
-         *devicetype 设备类型
-         */
-        this.startPlay = function (ioverlay, strCoords, startindex, endindex, timeInterval) {
-
-
-        };
-
-        /**暂停轨迹回放
-         *ioverlay 轨迹回放的图层
-         */
-        this.stopPlay = function (ioverlay) {
-
-        };
-        /**继续轨迹回放
-         *ioverlay 轨迹回放的图层
-         */
-        this.resetPlay = function (ioverlay) {
-
-        };
-
-        /**调整轨迹回放速度
-         *ioverlay 轨迹回放的图层
-         *interval 轨迹回放的速度
-         */
-        this.resetTimeInterval = function (ioverlay, interval) {
-
-        };
-
-
-        /**轨迹回放过程中跳转到指定位置
-         *ioverlay 轨迹回放的图层
-         */
-        this.jumpTo = function (ioverlay, index) {};
-
-        /**清除地图上的轨迹回放
-         *ioverlay 轨迹回放的图层
-         */
-        this.clearPlay = function (ioverlay) {};
+  
 
         /**地图打印方法
          *urlCSS 是否添加页眉页脚
@@ -524,302 +475,9 @@
         this.printmap = function (urlCSS, strTitle, strBottom) {};
 
 
-        /********************信息编辑接口**************/
-        this.addPoint = function (deviceid, callback) {
-
-        };
-        this.addLine = function (deviceid, callback) {
-
-        };
-
-        this.addPoly = function (deviceid, callback) {
-
-        };
-
-        this.editPoint = function (deviceid, callback) {
-
-        };
-        this.editLine = function (deviceid, callback) {
-
-        };
-
-        this.editPoly = function (deviceid, callback) {
-
-        };
-
-        this.delPoint = function (deviceid, callback) {
-
-        };
-        this.delLine = function (deviceid, callback) {
-
-        };
-
-        this.delPoly = function (deviceid, callback) {
-
-        };
-    };
-
-
-
-    //叠加信息类的基类
-    var HiOverLay = function (){
-
-        this.id;
-        this.paths = null;
-        this.points = new Array();
-        this.point = null;
-        this.iLen = null;
-        this.iPause = null;
-        this.timeInterval = 1000;
-        this.bIsRepeat = false;
-        this.bIsPlay = false;
-        this.iZIndex = 100;
-        this.dispStatus = 1;
-        this.startSeq = 0;
-        this.endSeq = 0;
-        this.dScale = 1;
-        this.startScaleSeq = 0;
-        this.endScaleSeq = 0;
-        this.statusSet = new Array();
-        this.dragObject = null;
-        this.bIsSyRedraw = true;
-        this.map = null;
-        this.angle = 0;
-        this.color = "red";
-        this.opacity = 1;
-        this.editable = false;
-        this.bIsCenter = false;
-
-        //设置其在图上的显示顺序，相当于设置其图层顺序
-        this.setZIndex = function(iIndex){};
-
-        //获得其在图上的显示顺序，整形
-        this.getZIndex = function(){};
-
-        //闪烁，出现和不出现之间交替3次
-        this.flash = function(){};
-
-        //触发onclick事件
-        this.nclick = function(){};
-
-        //功能:增加显示的状态
-        //参数:
-        //iStartS:开始周期
-        //iEndS:结束周期
-        //iStatus:状态(1:显示;2:隐藏;3:闪烁)
-        this.addDispStatus  = function(iStartS,iEndS,iStatus){};
-
-
-        //图元可以移动，Func为回调函数。可以调研该函数获取其坐标：_CurentOverLay.toString()
-        this.startMove = function(func){};
-
-        //功能:设置生长状态
-        //参数:
-        //iStartS:开始周期
-        //iEndS:结束周期
-        //dSScale:开始比例
-        //dEScale:结束比例
-        this.setExtendStatus  = function(iStartS,iEndS,dSScale,dEScale){};
-
-
-        //功能:设置路径
-        //参数:
-        //iStartS:开始周期
-        //iEndS:结束周期
-        //strPoints:轨迹,如:"116.3,39.4,116.5,39.4"
-        this.setPath  = function(iStartS,iEndS,strPoints){}
-
-
-        //功能:显示某周期的状态
-        //参数:
-        //iSeq:周期
-        this.showStatus  = function(iSeq){};
-
-
-        //缩放
-        this.scale = function(dscale){};
-
-        //开始推演, bIsCenter:是否实时对中,默认为:false
-        this.play = function(bIsCenter){};
-
-        //停止推演
-        this.stop = function(){};
-
-        //可以编辑图形
-        this.nableEdit = function(){};
-
-        //不可以编辑图形
-        this.disableEdit = function(){};
-
-        //获取透明度
-        this.getOpacity = function(){};
-
-        //设置透明度
-        this.etOpacity = function(arg){};
-
-        //获取点坐标，Point类型
-        this.getPoint = function(){};
-
-        //设置信息定位点，Point类型
-        this.etPoint = function(pPoint){};
-
-        //angle:为旋转角度,container为对象，如果为空，默认为本身的容器对象
-        this.rotate = function(angle,container){}
-
-    };
-
-    //点
-    var HiPoint = function(x,y){
-        this.x = x;
-        this.y = y;
-
-        /**
-         * 判断2点是否大概相等
-         * @param hiPoint
-         * @return {Boolean}
-         */
-        this.approxEquals = function(hiPoint){};
-
-        /**
-         * 判断2点是否相等
-         * @param hiPoint
-         * @return {Boolean}
-         */
-        this.equals= function(hiPoint){};
-
-    }
-
-    var HiIcon = function (image,width,height,leftOffset,topOffset){
-
-        //图片名称
-        this.image = image;
-
-        //图片宽度
-        this.width = height;
-
-        //图片高度
-        this.height = height;
-
-        //图片X方向偏移量
-        this.leftOffset = leftOffset;
-
-        //图片Y方向偏移量
-        this.topOffset = topOffset;
-    }
-
-    var HiTitle = function(name,fontSize,pos,font,color,bgColor){
-
-        //标题名称如:"北京"
-        this.name = name;
-
-        //字体大小:如:14
-        this.fontSize = fontSize;
-
-        this.pos = pos;
-
-        //字体,如:"宋体"
-        this.font = font;
-
-        //颜色,如:"red"
-        this.color = color;
-
-        this.bgColor = bgColor;
-
-        //设置图标显示位置
-        this.setPoint = function(pPoint){}
-
-        //获取其位置，类型为Point
-        this.getPoint = function(){}
-
-    }
-
-    //Marker是在地图上显示单个带有图标的对象
-    var HiMarker = function (point,icon,title){
-        this.base = iOverLay;
-        this.base();
-
-        this.point = point;
-        this.icon = icon;
-        this.title = title;
-
-        //显示信息筐
-        this.openInfoWindowHtml= function (htmlStr){
-        };
-
-        //加入事件，其中action为字符型,可以是如下:
-        //'click'：点击
-        //'dblclick'：双击
-        //'mouseover'：鼠标在上面移动
-        //'mouseout'：鼠标移出
-        this.addListener= function (action,fuct){
-        };
-
-        //获取当前的图层序列
-        this.etZIndex= function (){};
-
-        //设置图层系列
-        this.setZIndex= function (int){};
-
-        //显示标题
-        this.showTilte= function (){};
-
-        //隐藏标题
-        this.hideTitle= function (){};
-
-        //设置图标显示位置
-        this.setPoint= function (pPoint){};
-
-        //获取其位置，类型为Point
-        this.getPoint= function (){}
+  
     };
     
-    /*points由："x1,y1,x2,y2"组成，可以是String类型； 
-	 color表示颜色，支持格式是如"#0000ff"或“red”)；
-	 weight表示线的宽度，它是整形的；
-	 opacity表示线的透明度，浮点型，值的范围是0～1；
-	 fillcolor为填充的颜色.
-	*/
-    var HiRectangle = function(points, color, weight, opacity,fillcolor){
-    }
-    
-	var HiMBR = function(minX,minY,maxX,maxY){
-		this.minX = minX;
-		this.minY = minY;
-		this.maxX = maxX;
-		this.maxY = maxY;
-		//获取MBR的中心点;Point类型
-		this.centerPoint = noop;
-		//获取X方向的跨度
-		this.getSpanX = noop;
-		//获取Y方向的跨度
-		this.getSpanY = noop;
-		//E为小数:0~10
-		//MBR中心扩大其边框
-		this.scale = function(e){};
-		
-		//是否包含pMBR，返回类型：boolean
-		this.containsBounds = function(pMBR){};
-		//是否包含点，返回类型：boolean
-		this.containsPoint = function(point){};
-		//拓展边界，参数可以是Point或MBR类型，返回类型：无
-		this.extend = function(pMBR){};
-		//返回指定的2个MBR对象的相交部分的MBR，返回类型MBR
-		this.Intersection = function(pMBR1,pMBR2){};
-		//返回指定的2个MBR对象的并集部分的MBR，返回类型MBR
-		this.union = function(pMBR1,pMBR2){};
-		//获取其中心点，返回类型为:Point
-		this.getCenterPoint = function(){};
-	}
+    return HiMap;
 
-    this.IHiMap = IHiMap;
-    var EzMap = IHiMap;
-
-    if (typeof exports !== 'undefined') {
-        exports.IHiMap = IHiMap;
-    }
-})();
-
-
-
-
-
+});

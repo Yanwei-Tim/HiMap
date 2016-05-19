@@ -1,12 +1,50 @@
 /**
  * Created by liuxiaobing on 2016-1-5.
  */
-define([], function() {
-
+define(["tool/tools"], function(Tools) {
+	//空方法
+    function noop(){
+    }
+    var mapurl,centerpoint,mapmaxlevel,initlevel,geoserverURL;
+    
+    //初始化地图
+    Tools.sendAjax(window["HiMapConfig"].HOSTNAME+"getSysParams?sysparams=2001,2002,2003,2004,2005",function(data){
+        for(var i=0;i<data.record.length;i++){
+        	var sysparam = data.record[i];
+        	if(sysparam.PARAMCODE == '2001'){
+        		mapurl = sysparam.PARAMVALUE;
+        	}else if(sysparam.PARAMCODE == '2002'){
+        		centerpoint = sysparam.PARAMVALUE;
+        	}else if(sysparam.PARAMCODE == '2003'){
+        		mapmaxlevel = sysparam.PARAMVALUE;
+        	}else if(sysparam.PARAMCODE == '2004'){
+        		initlevel = sysparam.PARAMVALUE;
+        	}else if(sysparam.PARAMCODE == '2005'){
+        		geoserverURL = sysparam.PARAMVALUE;
+        	}
+        }
+        if(mapurl == null || mapurl == ""){
+            alert("地图引擎配置错误!");
+        }else{
+        	var scriptObj=document.createElement("script");
+			scriptObj.type="text/javascript";
+			scriptObj.src=mapurl;
+			document.getElementsByTagName("head")[0].appendChild(scriptObj);
+        }
+    });
+    
+    
 	var HiMap = function (mapdiv,mapInitParams) {
 		this.mapdiv = mapdiv;
 		this.mapInitParams = mapInitParams;
         this.map = null;
+        this.mapurl = mapurl;
+        this.centerpoint = centerpoint;
+        this.mapmaxlevel = mapmaxlevel;
+        this.initlevel = initlevel;
+        this.geoserverURL = geoserverURL;
+        
+		this.map = new EzMap(mapdiv);        
 
         /*************************************PGIS 接口部分******************************************/
         /**地图控件**/
@@ -92,7 +130,9 @@ define([], function() {
          * @param {Number} [zoomlevel]	地图显示级别
          * @return {IHiMap}
          */
-        this.centerAndZoom  = function(latLng, zoomLevel){	};
+        this.centerAndZoom  = function(latLng, zoomLevel){
+        	this.map.centerAndZoom(new Point(120.38013,36.08662), 3);
+		};
 
         //在指定的位置显示信息
         this.openInfoWindow = function(pPoint,html){};
@@ -331,7 +371,7 @@ define([], function() {
 
         /************信息查询接口**************/
 
-            //点查询
+        //点查询
         this.queryPoint = function (strCoords, callback) {};
 
         /**
@@ -457,49 +497,7 @@ define([], function() {
 
         };
 
-        /**轨迹回放
-         *ioverlay 轨迹回放的图层
-         *strCoords 轨迹,如:"116.3,39.4,116.5,39.4"
-         *start 开始节点
-         *end 结束节点
-         *devicetype 设备类型
-         */
-        this.startPlay = function (ioverlay, strCoords, startindex, endindex, timeInterval) {
-
-
-        };
-
-        /**暂停轨迹回放
-         *ioverlay 轨迹回放的图层
-         */
-        this.stopPlay = function (ioverlay) {
-
-        };
-        /**继续轨迹回放
-         *ioverlay 轨迹回放的图层
-         */
-        this.resetPlay = function (ioverlay) {
-
-        };
-
-        /**调整轨迹回放速度
-         *ioverlay 轨迹回放的图层
-         *interval 轨迹回放的速度
-         */
-        this.resetTimeInterval = function (ioverlay, interval) {
-
-        };
-
-
-        /**轨迹回放过程中跳转到指定位置
-         *ioverlay 轨迹回放的图层
-         */
-        this.jumpTo = function (ioverlay, index) {};
-
-        /**清除地图上的轨迹回放
-         *ioverlay 轨迹回放的图层
-         */
-        this.clearPlay = function (ioverlay) {};
+  
 
         /**地图打印方法
          *urlCSS 是否添加页眉页脚
@@ -510,39 +508,7 @@ define([], function() {
         this.printmap = function (urlCSS, strTitle, strBottom) {};
 
 
-        /********************信息编辑接口**************/
-        this.addPoint = function (deviceid, callback) {
-
-        };
-        this.addLine = function (deviceid, callback) {
-
-        };
-
-        this.addPoly = function (deviceid, callback) {
-
-        };
-
-        this.editPoint = function (deviceid, callback) {
-
-        };
-        this.editLine = function (deviceid, callback) {
-
-        };
-
-        this.editPoly = function (deviceid, callback) {
-
-        };
-
-        this.delPoint = function (deviceid, callback) {
-
-        };
-        this.delLine = function (deviceid, callback) {
-
-        };
-
-        this.delPoly = function (deviceid, callback) {
-
-        };
+  
     };
     
     return HiMap;
