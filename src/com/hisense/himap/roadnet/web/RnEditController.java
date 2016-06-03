@@ -237,6 +237,19 @@ public class RnEditController extends BaseRnController {
 		renderJson();
 	}
 	
+	public void getIntsList(){
+		String intsname = getPara("intsname");
+		String xzqh = getPara("xzqh");
+		setAttr("record",this.editservice.getIntsList(intsname,xzqh));
+		renderJson();
+	}	
+	public void updateIntsNode(){
+		String intsid = getPara("intsid");
+		String nodeid = getPara("nodeid");
+		setAttr("result",this.editservice.updateIntsNode(intsid, nodeid));
+		renderJson();
+	}
+	
 	
 	
 }

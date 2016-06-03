@@ -36,7 +36,7 @@ define([],function(){
 			 return mousePosition;
 		}
 		
-		this.sendAjax = function(url,callback,async){
+		this.sendAjax = function(url,callback,async,contenttype){
 			async = async||false;
 			var request = createHttpRequest();
 			try {
@@ -44,22 +44,44 @@ define([],function(){
 					if (request.readyState == 4) {
 						var data = "";
 						if (request.status == 200 || request.status == 0) {
-							if (typeof(JSON) == 'undefined'){
+							if(null == contenttype || contenttype == "json"){
+								if (typeof(JSON) == 'undefined'){
 								data = eval("("+request.responseText+")");
+								}else{
+									data = JSON.parse(request.responseText);
+								}
 							}else{
-								data = JSON.parse(request.responseText);
+								data = request.responseText;
 							}
+							
 							callback.call(this,data);
 							
 						}
 					}
 				};
-				request.open("POST", url, false);
+				request.open("POST", url, async);
 				request.send("");
 			} catch (exception) {
 				 //alert("!");
 			}
 		};
+		
+		this.checkParam = function(param,ptype){
+	    	if(ptype == "string" || ptype == "object"){
+	    		if(null == param||typeof param != ptype){
+					return false;
+				}
+	    	}else if(ptype == "number"){
+	    		if(null == param || isNaN(param)){
+					return false;
+				}
+	    	}else{
+	    		if(null == param || param+"" == ""){
+	    			return false;
+	    		}
+	    	}
+	    	return param;
+	    }
 		
 		
 	}

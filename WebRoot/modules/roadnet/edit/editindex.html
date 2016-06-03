@@ -13,25 +13,26 @@
     <![endif]-->
     <title>路网分析人工维护系统</title>
     <style>
-        .ms-controller {
-            visibility: hidden
-        }
+        .hi-panel-title {
+		    background-color: #666666 !important;
+		    font-weight: bold !important;
+		    color: #ffffff !important;
+		}
     </style>
-    <!--<script src="vendor/require/require.js" data-main="index"></script>-->
     <script src="../../../vendor/require/require.js"  data-main="js/editindex"></script>
 </head>
 
-<body ms-controller="root" class="ms-controller">
+<body>
     <div class="container-fluid" >
         <!--标题行-->
-        <div class="row" style="background-color: #23468A" ms-include-src="'header.html'" data-include-rendered="onheaderInit"></div>
+        <div class="row" style="background-color: #23468A" id="headerdiv"></div>
 
         <!--内容行-->
-        <div class="row" style="margin: 10px;background-color: #E2DEDF;padding: 10px;height: 800px;">
+        <div class="row" id="contentdiv" style="margin: 10px;background-color: #E2DEDF;padding: 10px;">
             <!--left-->
-            <div class="col-md-2" style="padding: 5px;height:100%;" ms-include-src="left" data-include-rendered="onleftInit"></div>
+            <div class="col-md-2" style="padding: 5px;height:100%;" id="leftdiv"></div>
             <!--center-->
-            <div class="col-md-10" id="centerdiv"  style="padding: 5px;height:100%;" ms-include-src="center" data-include-rendered="oncenterInit"></div>
+            <div class="col-md-10" id="centerdiv"  style="padding: 5px;height:100%;"  id="centerdiv"></div>
         </div>
 
     </div>

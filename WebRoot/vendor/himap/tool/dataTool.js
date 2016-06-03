@@ -147,7 +147,6 @@ define([],function (){
 	
 	
 	DataTool.prototype.getMonitorById = function(deviceid,devicetype){
-	
 		var result;
 		var url = param.rooturl+'/himap/getEquipmentInfo.do?deviceid='+deviceid+'&devicetype='+devicetype;
 		this.sendAjax(url,function(data){
@@ -160,18 +159,7 @@ define([],function (){
 		},false);
 		return result;
 	};
-	
-	
-	/**矩形内部查询
-	*strCoords 坐标点
-	*devicetype 要查询的设备类型,逗号分隔,如: "01,13,19"
-	*callback 回调函数
-	*/
-	DataTool.prototype.queryByRect = function(strCoords,devicetype,callback){
-		var request = createHttpRequest();
-		var url =  param.rooturl+'/himap/query.do?querytype=queryByRect&devicetype='+devicetype+'&strCoords='+strCoords;
-		this.sendAjax(url,callback);
-	}
+		
 	
 	var dataTool = new DataTool();
 	dataTool.param = param;

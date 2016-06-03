@@ -3,6 +3,7 @@ package com.hisense.himap.roadnet.web;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hisense.himap.common.util.GISUtils;
 import com.hisense.himap.roadnet.model.Road;
 import com.hisense.himap.roadnet.service.RnAnalyService;
 import com.hisense.himap.roadnet.service.RnQueryServiceImpl;
@@ -32,8 +33,8 @@ public class RnAnalyController extends BaseRnController {
 		}
 		List<String> inpoints = new ArrayList<String>();
 		List<String> outpoints= new ArrayList<String>();
-		genPoints(getPara("inpoints"),inpoints);
-		genPoints(getPara("outpoints"),outpoints);
+		GISUtils.genPoints(getPara("inpoints"),inpoints);
+		GISUtils.genPoints(getPara("outpoints"),outpoints);
 		/*List list = service.querySPList(startpoint, endpoint, inpoints, outpoints, querytype);
 		List<String> result = new ArrayList<String>();
 		for(int i=0;i<list.size();i++){
@@ -47,19 +48,17 @@ public class RnAnalyController extends BaseRnController {
 		renderJson("path",result);
 	}
 	
-	public void genPoints(String strpoints,List<String> points){
-		if(strpoints!=null && strpoints.length()>0){
-			String[] pointsarr = strpoints.split(",");
-			if(pointsarr.length>=2){
-				if(points == null){
-					points = new ArrayList<String>();
-				}
-				for(int i=0;i<pointsarr.length/2;i++){
-					String point = pointsarr[i*2]+","+pointsarr[i*2+1];
-					points.add(point);
-				}
-			}
-		}
+	/**
+	 * 沿路的设备搜索接口
+	 */
+	public void queryPointsInRoad(){
+		String devicetype = getPara("devicetype");
+		String distance = getPara("distance");
+		String sectionid = getPara("sectionid");
+		String pos = getPara("pos");
+		List result = service.queryPointsInRoad(pos, devicetype, distance, sectionid);
+		renderJson("result",result);
 	}
+
 
 }

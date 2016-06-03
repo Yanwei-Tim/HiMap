@@ -10,18 +10,17 @@ require.config({
         }
     },
     paths:{
-        avalon:"vendor/avalon/avalon.shim-1.5.5", 
+        avalon:"vendor/avalon/avalon2", 
         jquery:"vendor/jquery/jquery-1.10.2.min",
         bootstrap:"vendor/bootstrap/js/bootstrap.min",
         text: 'vendor/require/text',
         domReady:"vendor/require/domReady"
     }
 });
-var timeout;
-var arrPocessTimeout;
+var allSectionList;
 var mapad;
-require(["avalon","jquery","components/panel/hiatmp.panel","text","domReady!"],function(avalon,$,panel,text,domReady){
-    avalon.templateCache.empty = " ";
+require(["avalon","jquery","components2/pager/hiatmp.pager","text","domReady!"],function(avalon,$,pager,text,domReady){
+    
     var vm = avalon.define({
         $id: "editsection",
         srchSecName:'',
@@ -40,7 +39,7 @@ require(["avalon","jquery","components/panel/hiatmp.panel","text","domReady!"],f
     $("#sectiontbl").height($(document).height()-20);
     $("#mapdiv").height($(document).height()-20);
     
-    showSectionList();
+    getIntsList();
     setTimeout(function(){
     	var oFrm = $("#mapframe")[0];
 		oFrm.src = baseUrl+"vendor/himap/puremap.html";
@@ -58,7 +57,7 @@ require(["avalon","jquery","components/panel/hiatmp.panel","text","domReady!"],f
 	},1000);
    
     //显示路段列表
-    function showSectionList(){
+    function getIntsList(){
 		//ajax 获取路段数据
 	    $.ajax({
 			url:"/roadnet/edit/getSectionList",
@@ -66,21 +65,33 @@ require(["avalon","jquery","components/panel/hiatmp.panel","text","domReady!"],f
 			dataType:"json",
 			data:{sectionname:vm.srchSecName},
 			success:function(data){
-				vm.sectionList =  [];
-				//停止之前的大循环
-				if(arrPocessTimeout!=null){
-	        		clearTimeout(arrPocessTimeout);
-	        	}
-				largeArrayProcess(data.record,function(arr){
-					for(var i=0;i<arr.length;i++){
-						vm.sectionList.push(arr[i]);
-					}
-				},10);
+				
+				allSectionList = data.record;
+				var totalCount =  allSectionList.length;
+				var limit = parseInt(($("#sectiontbl").height()-120)/35);
+				limit = limit>totalCount?totalCount:limit;
+				var showPage = parseInt(totalCount/limit);
+				var maxshowPage = parseInt(($("#sectiontbl").width()-180)/40);
+				showPage = showPage>maxshowPage?maxshowPage:showPage;
+				
+				$('#callBackPager').extendPagination({
+		          	totalCount: totalCount,
+		          	showPage : showPage,
+		          	limit: limit,
+		          	callback: showSectionList
+		     	});
+		     	showSectionList(1,limit,totalCount);
 			}
 		});
 	}
 	
-	function editsectionarcs(el){
+	//分页显示路段列表
+	function showSectionList(curr, limit, totalCount){
+		var start = (curr-1)*limit;
+		vm.sectionList = allSectionList.slice(start,start+limit);
+	}
+	
+	function editsectionarcs(el,e){
 		if(el.ARCS!=null){
 		}else{
 			mapad.drawLine(function(strcoords){
@@ -100,7 +111,18 @@ require(["avalon","jquery","components/panel/hiatmp.panel","text","domReady!"],f
 				startpoint = startpoint.substring(0,startpoint.length-1);
 				inpoints = inpoints.substring(0,inpoints.length-1);
 				endpoint = endpoint.substring(0,endpoint.length-1);
-				
+				var url = "/roadnet/analy/queryShortestPath?startpoint="+startpoint+"&endpoint="+endpoint;
+				//ajax 获取路段数据
+			    $.ajax({
+					url:"/roadnet/analy/queryShortestPath",
+					type:"get",
+					dataType:"json",
+					data:{startpoint : startpoint,endpoint : endpoint,inpoints: inpoints},
+					success:function(data){
+						var path = data.path;
+						mapad.showroad(path);
+					}
+				});
 				
 			});
 		}

@@ -6,6 +6,7 @@
  var cursor = 0; //游标
  var isincrossmap = false;
  var tools;
+ var pLine;
  
 var baseUrl = "../../../";
 require.config({
@@ -66,7 +67,10 @@ require(["jquery","vendor/himap/tool/tools","text","domReady!"],function($,Tools
 		
 	});
 	$("#cancelbtn").on('click',function(){
-		mapframe._MapApp.removeOverlay(pLine);
+		if(!!pLine){
+			mapframe._MapApp.removeOverlay(pLine);
+		}
+		mapframe._MapApp.changeDragMode("pan");
 		if(isincrossmap){
 			isincrossmap = false;
 			$(".dirbtns").hide();

@@ -51,7 +51,6 @@ public class BaseRnService extends BaseService {
 			Node node;
 			String sql = "SELECT * from route_node r WHERE SDO_WITHIN_DISTANCE(r.geometry,mdsys.sdo_geometry(2001,8307, MDSYS.SDO_POINT_TYPE("+
 							joinpoint+",0), null,  null),'distance="+CROSSSIZE+" querytype=WINDOW') = 'TRUE'";
-			System.out.println(sql);
 			List<Node> list = Node.dao.find(sql);
 			if(list!=null && list.size()>0){
 				node = list.get(0);
@@ -199,6 +198,15 @@ public class BaseRnService extends BaseService {
 		strcoords = strcoords.substring(0,strcoords.length()-1);
 			
 		return "";
+	}
+	
+	/**
+	 * 获取行政区划枚举值
+	 * @return
+	 */
+	public List getXZQH(){
+		String sql = "SELECT e.enumvalue,e.enumname from enum_type e WHERE e.enumtypeid=180 order by e.enumvalue";
+		return Db.find(sql);
 	}
 	
 }

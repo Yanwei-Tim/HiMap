@@ -26,29 +26,29 @@
        <!--内容行-->
        <div class="row" style="background-color: #E2DEDF;padding: 10px;">
            <!--left-->
-           <div class="col-md-6" id="sectiontbl" style="padding: 5px;height:100%;overflow:scroll;">
+           <div class="col-md-4" id="sectiontbl" style="padding: 5px;height:100%;overflow:scroll;">
            		<form class="form-inline" style='padding-bottom:5px'>
 				    <label for="exampleInputName2">路段名称</label>
-				    <input type="text" class="form-control" id="searchSecName" ms-duplex="srchSecName" data-duplex-changed="srchSecNamechange" style='width:200px'>
+				    <input type="text" class="form-control" id="searchSecName" ms-duplex="@srchSecName" data-duplex-changed="@srchSecNamechange" style='width:200px'>
 				</form>
-	           	<table id="tbPassSearch" title="dddd" class="table table-hover table-bordered table-condensed">
+	           	<table id="tbPassSearch" class="table table-hover table-bordered table-condensed">
 	                <tr style="background-color: #7B7E87;font-weight: bold;color: #ffffff">
-	                    <td align="center">路段编号</td>
-	                    <td align="center">路段名称</td>
-	                    <td align="center">关联弧段</td>
-	                    <td align="center">编辑</td>
+	                    <td nowrap align="center">路段编号</td>
+	                    <td nowrap align="center">路段名称</td>
+	                    <td nowrap align="center">关联弧段</td>
+	                    <td nowrap align="center">编辑</td>
 	                </tr>
-	                <tr ms-repeat = "sectionList">
-	                	<td ms-text ="el.SECTIONID"></td>
-	                	<td ms-text ="el.SECTIONNAME"></td>
-	                	<td ms-text ="el.ARCS"></td>
-	                	<td><img src='images/modify.png' ms-on-click="editsectionarcs(el)" style='width: 16px;height: 16px'</td>
+	                <tr ms-for="el in @sectionList">
+	                	<td >{{el.SECTIONID}}</td>
+	                	<td ms-attr = "{title: el.SECTIONNAME}">{{el.SECTIONNAME}}</td>
+	                	<td >{{el.ARCS}}</td>
+	                	<td><img src='images/modify.png' ms-click="@editsectionarcs(el,$event)" style='width: 16px;height: 16px'/></td>
 	                </tr>
-	                
 	            </table>
+	            <div id="callBackPager"></div>
            </div>
            <!--center-->
-           <div class="col-md-6" id="mapdiv"  style="padding: 5px;height:100%;">
+           <div class="col-md-8" id="mapdiv"  style="padding: 5px;height:100%;">
            		<iframe id="mapframe" scrolling="no" width="100%" height="100%" frameborder="0" style="margin: 0"></iframe>
            </div>
        </div>

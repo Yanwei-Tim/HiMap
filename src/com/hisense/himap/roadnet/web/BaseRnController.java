@@ -35,6 +35,13 @@ public class BaseRnController extends Controller {
 		renderJson("record",baseservice.convertLRSArcsToStrcoords(lrsarcs));
 	}
 	
+	/**
+	 * 获取行政区划枚举值
+	 */
+	public void getXZQH(){
+		renderJson("xzqh",baseservice.getXZQH());
+	}
+	
 	
 	
 }

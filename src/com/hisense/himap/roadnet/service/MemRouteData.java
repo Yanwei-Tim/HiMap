@@ -61,8 +61,6 @@ public class MemRouteData  extends BaseService {
 				list.add(arc);
 				ARCMAPBYSTARTNODE.put(arc.getEndnode(), list);
 			}
-			
-			
 		}
 		
 		//初始化转向限制数据
@@ -77,7 +75,24 @@ public class MemRouteData  extends BaseService {
 			list.add(ft);
 			FTMAP.put(ft.getCrossnode(), list);
 		}
+		
+		
+		
+		
+		
 		System.out.println("数据初始化完成");
+	}
+	
+	/**
+	 * 根据距离合并弧段数据，提高查询效率
+	 * @param distance
+	 */
+	public static void mergedArcByDistance(int distance){
+		Map<String,Arc> mergedArc = new HashMap<String,Arc>();
+		Map<String,List<Arc>> mergedArcMapByStartNode = new HashMap<String,List<Arc>>();
+		for(Arc arc:ARCLIST){
+			
+		}
 	}
 	
 	/**
@@ -101,6 +116,9 @@ public class MemRouteData  extends BaseService {
 	 * @return
 	 */
 	public static List<Arc> getArcByStartNode(String nodeid,String fromnodeid){
+		if(nodeid.equalsIgnoreCase(fromnodeid)){
+			return null;
+		}
 		if(NODELIST == null){
 			initMemData();
 		}
@@ -112,9 +130,9 @@ public class MemRouteData  extends BaseService {
 		}else if(fromnodeid != null && flist != null){
 			for(Arc arc:nextarcs){
 				String endnode = arc.getEndnode().equalsIgnoreCase(nodeid)?arc.getStartnode():arc.getEndnode();
-				if(endnode.equalsIgnoreCase(fromnodeid)){
+				/*if(endnode.equalsIgnoreCase(fromnodeid)){
 					continue;
-				}
+				}*/
 				Boolean isforbidden = false;
 				for(Forbiddenturn fturn:flist){
 					if(fturn.getFromnode().equalsIgnoreCase(fromnodeid) && fturn.getTonode().equals(endnode)){
@@ -128,22 +146,22 @@ public class MemRouteData  extends BaseService {
 			}
 		}else{
 			for(Arc arc:nextarcs){
-				String endnode = arc.getEndnode().equalsIgnoreCase(nodeid)?arc.getStartnode():arc.getEndnode();
+				/*String endnode = arc.getEndnode().equalsIgnoreCase(nodeid)?arc.getStartnode():arc.getEndnode();
 				if(endnode.equalsIgnoreCase(fromnodeid)){
 					continue;
-				}
+				}*/
 				result.add(arc);
 			}
 		}
-		List<Arc> result2 = new ArrayList<Arc>();
+		/*List<Arc> result2 = new ArrayList<Arc>();
 		for(Arc arc:result){
 			if(arc.getStartnode().equalsIgnoreCase(arc.getEndnode())){
 				continue;
 			}else{
 				result2.add(arc);
 			}
-		}
-		return result2;
+		}*/
+		return result;
 		
 	}
 	
@@ -151,23 +169,19 @@ public class MemRouteData  extends BaseService {
 	 * 向内存数据中插入动态节点
 	 * @param node 动态节点
 	 */
-	public static void insertDynamicNode(Node node){
+	public static String insertDynamicNode(Node node){
 		if(node.getNodeid()==null){
 			node.setNodeid(UUID.randomUUID().toString().replaceAll("-", ""));
 		}
 		if(NODELIST == null){
 			initMemData();
 		}
-		DNODELIST.add(node);
-		NODELIST.add(node);
-		NODEMAP.put(node.getNodeid(), node);
 		
 		StringBuffer buff = new StringBuffer("SELECT r.arcid,r.strcoords,r.traffic_dir,to_char(sdo_util.to_wktgeometry(SDO_LRS.CONVERT_TO_STD_GEOM(SDO_LRS.PROJECT_PT(SDO_LRS.CONVERT_TO_LRS_GEOM(r.geometry),")
 								.append("mdsys.sdo_geometry(2001,8307,MDSYS.SDO_POINT_TYPE(")
 								.append(node.getStrcoords()).append(" ,0),null,null))))) as projectpt")
 								.append(" FROM route_arc r WHERE SDO_WITHIN_DISTANCE(r.geometry,mdsys.sdo_geometry(2001,8307,MDSYS.SDO_POINT_TYPE(")
 								.append(node.getStrcoords()).append(" ,0),null,null),'distance=10 querytype=WINDOW') = 'TRUE'");
-		System.out.println(buff.toString());
 		List<Record> list = Db.find(buff.toString());
 		if(list!=null){
 			for(Record record:list){
@@ -199,7 +213,6 @@ public class MemRouteData  extends BaseService {
 						arc.setStartnode(prearc.getStartnode());
 						arc.setEndnode(node.getNodeid());
 					}
-					System.out.println("new arc:"+arc.getStartnode()+","+arc.getEndnode()+":"+arc.getStrcoords());
 					DARCLIST.add(arc);
 					ARCLIST.add(arc);
 					ARCMAP.put(arc.getArcid(), arc);
@@ -223,6 +236,12 @@ public class MemRouteData  extends BaseService {
 				}
 				
 			}
+			DNODELIST.add(node);
+			NODELIST.add(node);
+			NODEMAP.put(node.getNodeid(), node);
+			return "success";
+		}else{
+			return "false";
 		}
 		
 	}

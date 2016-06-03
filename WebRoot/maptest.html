@@ -1,29 +1,36 @@
-<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:v ="urn:schemas-microsoft-com:vml">
-<html>
+<html xmlns:v ="urn:schemas-microsoft-com:vml">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=gbk"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <script src="http://10.16.5.203/himap.js" maptype = "pgis" onready = "mapready"></script>
-    <title>��ͼ����ҳ</title>
-    <style>
-       
-    </style>
+    <meta charset="gbk">
+    <link rel="stylesheet" href="http://10.16.1.72:8080/HiMap/himap.css" type="text/css" />
+    <script src="http://10.16.1.72:8080/HiMap/himap.js" maptype = "pgis" onready = "mapready"></script>
+    <title>maptest</title>
     <script>
     	function mapready(){
-    		alert(document.getElementById("map"));
     		var _MapApp = new HiMap(document.getElementById("map"));
-    		_MapApp.addControl();
     		_MapApp.centerAndZoom("120.38013,36.08662", 3);
+    		/*var data = {
+    			currRecord:{
+	    			image1path:'pic1',image2path:'pic2',deviceid:'1234',devicename:'山东路江西路东向西视频',
+	    			devicemodel:'12FDE',pointname:'山东路江西路安装点',providedate:'2015-02-15',thirdsyscode:'52001',
+	    			nstatename:'正常',authflag:''
+    			},
+    			recordList:[{
+	    			image1path:'pic1',image2path:'pic2',deviceid:'1234',devicename:'山东路江西路东向西视频',
+	    			devicemodel:'12FDE',pointname:'山东路江西路安装点',providedate:'2015-02-15',thirdsyscode:'52001',
+	    			nstatename:'正常',authflag:''
+    			},{
+	    			image1path:'pic1',image2path:'pic2',deviceid:'1234',devicename:'山东路江西路东向西视频',
+	    			devicemodel:'12FDE',pointname:'山东路江西路安装点',providedate:'2015-02-15',thirdsyscode:'52001',
+	    			nstatename:'正常',authflag:''
+    			}]
+    		}
+    		_MapApp.testhandlebar(data);*/
+    		_MapApp.showDevice({deviceid:"370202000000131078",centable:true});
     	}
     </script>
 </head>
 
-<bodystyle="overflow-x:hidden;overflow-y:hidden">
-aaaaa
-<div id="map" style="top: 1px; left: 0px; border-bottom: 0px;"></div>
+<body style="overflow-x:hidden;overflow-y:hidden">
+<div id="map" style="top: 10px; left: 10px; border-bottom: 0px;width:600px;height:600px"></div>
 </body>
-
-
 </html>

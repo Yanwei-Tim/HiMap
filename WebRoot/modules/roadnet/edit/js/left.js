@@ -1,14 +1,13 @@
 
-define(["components/panel/hiatmp.panel",
-        "components/listgroup/hiatmp.listgroup",
-        "components/label/hiatmp.label",
-        "text!../left.html","jquery"],
-    function(panel,listgroup,label,left,$) {
-		var vm = avalon.vmodels.root;
-        avalon.templateCache.left = left;
-        vm.left = "left";
-        
-        vm.leftattr = {
+define(["text!../left.html"],function(leftdiv) {
+	$("#leftdiv").append(leftdiv);
+	
+	$(".leftnavl").on('click',function(){
+		$(".leftnavl").removeClass("active");
+		$(this).addClass("active");
+		$("#centercontent").attr("src",$(this).attr("name")+".html");
+	});
+	/*vm.leftattr = {
         	navis:[
         		{name:'节点维护',value:'editnode'},
         		{name:'弧段维护',value:'editarc'},
@@ -21,7 +20,5 @@ define(["components/panel/hiatmp.panel",
         		$("#mapframe").attr("src",el.value+".html");
 	        },
 	        currnavIdx:0
-        }
-        
-        
-    });
+        }*/
+})

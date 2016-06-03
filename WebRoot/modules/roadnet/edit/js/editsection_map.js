@@ -34,11 +34,20 @@ define(["vendor/himap/x/WMSTileLayer"],function (WMSTileLayer){
 		}
 		return {lon:xpos,lat:ypos};
 	}
+	
+	function showroad(strCoord){
+        if(strCoord == null){
+            return;
+        }
+        var newpLine = new Polyline(strCoord,"#00FF00",3,1,0);// 构造一个多义线对象
+        _MapApp.addOverlay(newpLine);// 将多义线对象添加到地图中
+    }
 
 	return {
 		showarcWMS : showarcWMS,
 		closeWMS : closeWMS,
 		drawLine : drawLine,
-		getMousePos : getMousePos
+		getMousePos : getMousePos,
+		showroad : showroad
 	}
 });

@@ -11,7 +11,7 @@ public class BaseController extends Controller {
 	private BaseService service = new BaseService();
 	
 	public void index() {
-		renderText("himap地图服务");
+		renderJsp("index.html");
 	}
 	
 	/**

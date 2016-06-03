@@ -1,0 +1,178 @@
+.btn_mouseout {
+	BORDER-RIGHT: #9EB6CE 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: #9EB6CE 1px solid; PADDING-LEFT: 2px; FONT-SIZE: 12px; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr=#EAF2FB, EndColorStr=#EAF2FB); BORDER-LEFT: #9EB6CE 1px solid; CURSOR: hand; COLOR: black; PADDING-TOP: 2px; BORDER-BOTTOM: #9EB6CE 1px solid
+}
+.btn_mouseover {
+	BORDER-RIGHT: #F29536 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: #F29536 1px solid; PADDING-LEFT: 2px; FONT-SIZE: 12px; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr=#FEFEFE, EndColorStr=#FFD75A); BORDER-LEFT: #F29536 1px solid; CURSOR: hand; COLOR: black; PADDING-TOP: 2px; BORDER-BOTTOM: #F29536 1px solid
+}
+.btn_mousedown
+{
+	BORDER-RIGHT: #F29536 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: #F29536 1px solid; PADDING-LEFT: 2px; FONT-SIZE: 12px; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr=#FDF6DF, EndColorStr=#FBA742); BORDER-LEFT: #F29536 1px solid; CURSOR: hand; COLOR: black; PADDING-TOP: 2px; BORDER-BOTTOM: #F29536 1px solid
+}
+.btn_mouseup {
+	BORDER-RIGHT: #F29536 1px solid; PADDING-RIGHT: 2px; BORDER-TOP: #F29536 1px solid; PADDING-LEFT: 2px; FONT-SIZE: 12px; FILTER: progid:DXImageTransform.Microsoft.Gradient(GradientType=0, StartColorStr=#FEFEFE, EndColorStr=#FFD75A); BORDER-LEFT: #F29536 1px solid; CURSOR: hand; COLOR: black; PADDING-TOP: 2px; BORDER-BOTTOM: #F29536 1px solid
+}
+#pointDiv {
+    position: absolute;
+    top: 30px;
+    right: 300px;
+    z-index: 1;
+    margin:auto 2px;
+    width:200px;
+    background:#FFFFFF;
+    background:#FFFFFF;
+    height:110px;
+    border: 2px solid #99CCFF;
+    border-collapse:collapse;
+    visibility:"";
+}
+#lineDiv {
+    position: absolute;
+    top: 100px;
+    right: 200px;
+    z-index: 1;
+    margin:auto 2px;
+    width:220px;
+    background:#FFFFFF;
+    background:#FFFFFF;
+    height:110px;
+    border: 2px solid #99CCFF;
+    border-collapse:collapse;
+    visibility:"";
+}
+#polygonDiv {
+    position: absolute;
+    top: 100px;
+    right: 200px;
+    z-index: 1;
+    margin:auto 2px;
+    width:200px;
+    background:#FFFFFF;
+    background:#FFFFFF;
+    height:110px;
+    border: 2px solid #99CCFF;
+    border-collapse:collapse;
+    visibility:"";
+}
+#pileDiv {
+    position: absolute;
+    top: 100px;
+    right: 200px;
+    z-index: 1;
+    margin:auto 2px;
+    width:280px;
+    background:#FFFFFF;
+    background:#FFFFFF;
+    height:150px;
+    border: 2px solid #99CCFF;
+    border-collapse:collapse;
+    visibility:"";
+}
+#roadPosDiv {
+    position: absolute;
+    z-index: 1;
+    margin:auto 2px;
+    width:335px;
+    /*background:#FFFFFF;
+    background:#FFFFFF;
+    height:110px;*/
+    border: 0px solid #99CCFF;
+    border-collapse:collapse;
+    visibility:"";
+}       
+
+.loading{
+    width:240px;
+    height:56px;
+    position: absolute;
+    top:50%;
+    left:40%;
+    line-height:56px;
+    color:#fff;
+    padding-left:60px;
+    font-size:15px;
+    background: #000 url(css/uncheck.png) no-repeat 10px 100%;
+    opacity: 0.7;
+    z-index:9999;
+    -moz-border-radius:20px;
+    -webkit-border-radius:20px;
+    border-radius:20px;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+}
+.loadingmask{
+    width:100%;
+    height:100%;
+    position: absolute;
+    top:0;
+    left:0;
+    color:#fff;
+    background: #FFFFFF  no-repeat 10px 50%;
+    opacity: 0.7;
+    z-index:9998;
+    -moz-border-radius:20px;
+    -webkit-border-radius:20px;
+    border-radius:20px;
+    filter:progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+}
+
+
+UL {PADDING: 0px; MARGIN: 0px;}
+LI {PADDING: 0px; MARGIN: 0px;}
+P {line-height:10px;}
+
+.container {
+	WIDTH: 205px;
+	HEIGHT: 205px;
+	margin:4px 0px 4px 4px;
+	float:left;
+	background:#E6EBF7;
+	clear:right;
+}
+.container A IMG {
+	WIDTH: 205px;
+	HEIGHT: 205px
+}
+.container IMG {
+	BORDER-BOTTOM-STYLE: none;
+	BORDER-RIGHT-STYLE: none;
+	BORDER-TOP-STYLE: none;
+	BORDER-LEFT-STYLE: none
+}
+.td_f A IMG {
+	PADDING-BOTTOM: 0px;l 
+	MARGIN: 0px;
+	PADDING-LEFT: 0px;
+	PADDING-RIGHT: 0px;
+	PADDING-TOP: 0px
+}
+.num {
+	POSITION: absolute;
+	WIDTH: 90px;
+	FLOAT: right;
+	TOP: 160px;
+	LEFT: 120px
+}
+.num LI {
+	TEXT-ALIGN: center;
+	LINE-HEIGHT: 15px;
+	LIST-STYLE-TYPE: none;
+	MARGIN: 1px;
+	WIDTH: 15px;
+	FONT-FAMILY: Arial;
+	BACKGROUND: url(vendor/himap/icons/flashbutton.gif) no-repeat -15px 0px;
+	FLOAT: left;
+	HEIGHT: 15px;
+	COLOR: #86a2b8;
+	FONT-SIZE: 12px;
+	CURSOR: pointer
+}
+.num LI.on {
+	LINE-HEIGHT: 15px;
+	WIDTH: 15px;
+	BACKGROUND: url(vendor/himap/icons/flashbutton.gif) no-repeat;
+	HEIGHT: 15px;
+	COLOR: #ffffff
+}
+#seimageurl1{
+	BACKGROUND: url(vendor/himap/icons/attemper.png) no-repeat;
+	src: url(vendor/himap/icons/attemper.png) no-repeat;
+} 

@@ -1,0 +1,19 @@
+<html xmlns:v ="urn:schemas-microsoft-com:vml">
+<head>
+    <meta charset="gbk">
+    <link rel="stylesheet" href="../../himap.css" type="text/css" />
+    <script src="../../himap.js" maptype = "pgis" onready = "mapready"></script>
+    <title>maptest</title>
+    <script>
+    	function mapready(){
+    		var _MapApp = new HiMap(document.getElementById("map"));
+    		_MapApp.centerAndZoom("120.38013,36.08662", 3);
+    		_MapApp.showDevice({deviceid:"370202000000131078",centable:true});
+    	}
+    </script>
+</head>
+
+<body style="overflow-x:hidden;overflow-y:hidden">
+	<div id="map" style="top: 0px; left: 0px; border-bottom: 0px; overflow-x: hidden; overflow-y: hidden;"></div>
+</body>
+</html>

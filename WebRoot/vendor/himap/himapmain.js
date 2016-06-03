@@ -2,9 +2,14 @@
 require.config({
     paths:{
         himap:"map/himap_"+window["HiMapConfig"].MAPTYPE,
+        jquery:"../jquery/jquery-1.10.2.min",
         text: '../require/text',
         domReady:"../require/domReady"
-    }
+    },shim: {
+　　　'../handlebar/handlebars':{
+　　　　　exports: 'Handlebars'
+　　　}
+　　}
 });
 
 require(["himap","domReady!"],function(HiMap){

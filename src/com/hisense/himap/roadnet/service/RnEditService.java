@@ -138,20 +138,30 @@ public class RnEditService extends BaseRnService {
 					startnode.setNodeid(UUID.randomUUID().toString().replaceAll("-", ""));
 					startnode.setStrcoords(startpoint);
 					//添加开始节点
+					String geomstr = GISUtils.genGeomStr(startnode.getJoinpoints(), "point");
 					buff.delete(0, buff.toString().length());
-					buff.append("insert into route_node (nodeid,strcoords,joinpoints,geometry) values('")
+					buff.append("insert into route_node (nodeid,strcoords,joinpoints,geometry,pointsgeometry) values('")
 						.append(startnode.getNodeid()).append("','")
 						.append(startnode.getStrcoords()).append("','")
-						.append(startnode.getJoinpoints()).append("',MDSYS.SDO_GEOMETRY(2001,8307,SDO_POINT_TYPE(").append(startpoint).append(",null),NULL,NULL)")
+						.append(startnode.getJoinpoints()).append("',")
+						.append(geomstr).append(",").append(geomstr)
 						.append(")");
 					Db.update(buff.toString());
 				}else{
 					//更新开始节点的坐标、连接点
+					String geomstr = GISUtils.genGeomStr(startnode.getStrcoords(), "point");
+					String jpoints = startnode.getJoinpoints();
+					String pointsgeomstr = GISUtils.genGeomStr(startnode.getJoinpoints(), "polygon");
+					if(jpoints.split(",").length==2){
+						pointsgeomstr = GISUtils.genGeomStr(startnode.getJoinpoints(), "point");
+					}else if(jpoints.split(",").length==4){
+						pointsgeomstr = GISUtils.genGeomStr(startnode.getJoinpoints(), "line");
+					}
 					buff.delete(0, buff.toString().length());
 					buff.append("update route_node r set r.strcoords='")
 						.append(startnode.getStrcoords())
 						.append("',r.joinpoints='").append(startnode.getJoinpoints())
-						.append("',r.geometry=").append("MDSYS.SDO_GEOMETRY(2001,8307,SDO_POINT_TYPE(").append(startnode.getStrcoords()).append(",null),NULL,NULL)")
+						.append("',r.geometry=").append(geomstr).append(",r.pointsgeometry = ").append(pointsgeomstr)
 						.append(" where r.nodeid='").append(startnode.getNodeid()).append("'");
 					Db.update(buff.toString());
 				}
@@ -161,20 +171,30 @@ public class RnEditService extends BaseRnService {
 					//添加结束节点
 					endnode.setNodeid(UUID.randomUUID().toString().replaceAll("-", ""));
 					endnode.setStrcoords(endpoint);
+					String geomstr = GISUtils.genGeomStr(endnode.getJoinpoints(), "point");
 					buff.delete(0, buff.toString().length());
-					buff.append("insert into route_node (nodeid,strcoords,joinpoints,geometry) values('")
+					buff.append("insert into route_node (nodeid,strcoords,joinpoints,geometry,pointsgeometry) values('")
 						.append(endnode.getNodeid()).append("','")
 						.append(endnode.getStrcoords()).append("','")
-						.append(endnode.getJoinpoints()).append("',MDSYS.SDO_GEOMETRY(2001,8307,SDO_POINT_TYPE(").append(endpoint).append(",null),NULL,NULL)")
+						.append(endnode.getJoinpoints()).append("',")
+						.append(geomstr).append(",").append(geomstr)
 						.append(")");
 					Db.update(buff.toString());
 				}else{
 					//更新结束节点的坐标、连接点
+					String geomstr = GISUtils.genGeomStr(endnode.getStrcoords(), "point");
+					String jpoints = endnode.getJoinpoints();
+					String pointsgeomstr = GISUtils.genGeomStr(endnode.getJoinpoints(), "polygon");
+					if(jpoints.split(",").length==2){
+						pointsgeomstr = GISUtils.genGeomStr(endnode.getJoinpoints(), "point");
+					}else if(jpoints.split(",").length==4){
+						pointsgeomstr = GISUtils.genGeomStr(endnode.getJoinpoints(), "line");
+					}
 					buff.delete(0, buff.toString().length());
 					buff.append("update route_node r set r.strcoords='")
 						.append(endnode.getStrcoords())
 						.append("',r.joinpoints='").append(endnode.getJoinpoints())
-						.append("',r.geometry=").append("MDSYS.SDO_GEOMETRY(2001,8307,SDO_POINT_TYPE(").append(endnode.getStrcoords()).append(",null),NULL,NULL)")
+						.append("',r.geometry=").append(geomstr).append(",r.pointsgeometry = ").append(pointsgeomstr)
 						.append(" where r.nodeid='").append(endnode.getNodeid()).append("'");
 					Db.update(buff.toString());
 				}
@@ -221,15 +241,15 @@ public class RnEditService extends BaseRnService {
 		}
 		try{
 			Node node;
-			String sql = "SELECT * from route_node r WHERE SDO_WITHIN_DISTANCE(r.geometry,mdsys.sdo_geometry(2001,8307, MDSYS.SDO_POINT_TYPE("+
+			String sql = "SELECT * from route_node r WHERE SDO_WITHIN_DISTANCE(r.pointsgeometry,mdsys.sdo_geometry(2001,8307, MDSYS.SDO_POINT_TYPE("+
 							joinpoint+",0), null,  null),'distance="+CROSSSIZE+" querytype=WINDOW') = 'TRUE' order by SDO_GEOM.sdo_distance("
-							+"r.geometry,mdsys.sdo_geometry(2001,8307, MDSYS.SDO_POINT_TYPE("+joinpoint+",0), null,  null),1)";
+							+"r.pointsgeometry,mdsys.sdo_geometry(2001,8307, MDSYS.SDO_POINT_TYPE("+joinpoint+",0), null,  null),1)";
 			List<Node> list = Node.dao.find(sql);
 			if(list!=null && list.size()>0){
 				node = list.get(0);
 				if(node.getJoinpoints().equals("")){
 					node.setJoinpoints(joinpoint);
-				}else{
+				}else if(node.getJoinpoints().indexOf(joinpoint)<0){
 					node.setJoinpoints(node.getJoinpoints()+","+joinpoint);
 				}
 				node.setStrcoords(GISUtils.genCentroid(node.getJoinpoints()));
@@ -504,14 +524,13 @@ public class RnEditService extends BaseRnService {
 		Db.update(buff.toString(), newjpstr,nodeid);
 		
 		//弧段表处理
-		buff.delete(0, buff.toString().length());
+		/*buff.delete(0, buff.toString().length());
 		String geomstr = GISUtils.genGeomStr(jpstr, "point");
-		//System.out.println(geomstr);
 		buff.append("update route_arc r set r.startnode = null where r.startnode = ? and SDO_WITHIN_DISTANCE(r.geometry,"+geomstr+",'distance=1 querytype=window')='TRUE'");
 		Db.update(buff.toString(),nodeid);
 		buff.delete(0, buff.toString().length());
 		buff.append("update route_arc r set r.endnode = null where r.endnode = ? and SDO_WITHIN_DISTANCE(r.geometry,"+geomstr+",'distance=1 querytype=window')='TRUE'");
-		Db.update(buff.toString(),nodeid);
+		Db.update(buff.toString(),nodeid);*/
 		
 		
 		//连通关系表处理
@@ -717,6 +736,9 @@ public class RnEditService extends BaseRnService {
 			return "参数传递错误";
 		}
 		Arc arc = Arc.dao.findById(arcid);
+		if(arc.getStrcoords().equalsIgnoreCase(strcoords) || arc.getStrcoords().equalsIgnoreCase(GISUtils.resetDirection(strcoords))){
+			return "success";
+		}
 		Roadlink r = new Roadlink();
 		r.setStrcoords(strcoords);
 		r.setRoadid(arc.getRoadcode());
@@ -725,13 +747,6 @@ public class RnEditService extends BaseRnService {
 		this.delRouteArc(arcid);
 		this.insertRoadLink(r);
 		
-		/*String geomstr = GISUtils.genGeomStr(strcoords,"line");
-		String sql = "update route_arc a set a.strcoords = ?,a.geometry = "+geomstr+" where a.arcid=?";
-		try{
-			Db.update(sql,strcoords,geomstr, arcid);
-		}catch(Exception e){
-			return "更新数据出错";
-		}*/
 		return "success";
 	}
 	
@@ -775,6 +790,41 @@ public class RnEditService extends BaseRnService {
 		return list;
 	}
 	
+	/**
+	 * 获取路口列表
+	 * @param intsname 路口名称
+	 * @return
+	 */
+	public List getIntsList(String lkmc,String xzqh){
+		String sql = "SELECT r.intsid,r.lkmc,r.lkdm,r.nodeid,r.dldm,r.bmdm,n.strcoords from route_intersection r LEFT JOIN route_node n ON n.nodeid = r.nodeid where 1=1 ";
+		if(lkmc!=null && lkmc.length()>0){
+			sql += " and r.lkmc like '%"+lkmc+"%'";
+		}
+		if(xzqh!=null && xzqh.length()>0){
+			sql += " and r.bmdm = '"+xzqh+"'";
+		}
+		List list = Db.find(sql);
+		return list;
+	}
+	
+	/**
+	 * 更新路口所属节点
+	 * @param intsid 路口编号
+	 * @param nodeid 节点编号
+	 * @return
+	 */
+	public String updateIntsNode(String intsid,String nodeid){
+		if(null == intsid || intsid.length()<=0 || null == nodeid || nodeid.length()<=0){
+			return "参数传递错误";
+		}
+		String sql ="update route_Intersection r set r.nodeid = ? where r.intsid = ?";
+		try{
+			Db.update(sql,nodeid,intsid);
+			return "success";
+		}catch(Exception e){
+			return "更新数据出错";
+		}
+	}
 	
 	
 	/**

@@ -15,7 +15,7 @@ public class AStar {
     private int verbose = 0;
     // The maximum number of completed nodes. After that number the algorithm returns null.
     // If negative, the search will run until the goal node is found.
-    private int maxSteps = 90000;
+    private int maxSteps = 10000;
     //number of search steps the AStar will perform before null is returned
     private int numSearchSteps;
     
@@ -66,7 +66,7 @@ public class AStar {
             if(goalNode.inGoal(currentNode)) {
                 //we know the shortest path to the goal node, done
                 this.bestNodeAfterSearch = currentNode;
-                System.out.println("搜索步数:"+this.numSearchSteps);
+                System.out.println("弧段个数:"+this.numSearchSteps);
                 return currentNode;
             }
             //get successor nodes

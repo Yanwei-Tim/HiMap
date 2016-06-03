@@ -83,6 +83,14 @@ public class GISUtils {
 			result = "MDSYS.SDO_GEOMETRY(2002, 8307,NULL,MDSYS.SDO_ELEM_INFO_ARRAY(1,2,1),MDSYS.SDO_ORDINATE_ARRAY("+strcoords+"))";
 		}else if(geomtype.equalsIgnoreCase("point")){
 			result = "mdsys.sdo_geometry(2001,8307,MDSYS.SDO_POINT_TYPE("+strcoords+",0),null,null)";
+		}else if(geomtype.equalsIgnoreCase("polygon")){
+			String[] strcoordarr = strcoords.split(",");
+			if(strcoordarr.length<=4){
+				result =  "";
+			}else if(!(strcoordarr[0]+","+strcoordarr[1]).equalsIgnoreCase(strcoordarr[strcoordarr.length-2]+","+strcoordarr[strcoordarr.length-1])){
+				strcoords = strcoords+","+strcoordarr[0]+","+strcoordarr[1];
+			}
+			result = "MDSYS.SDO_GEOMETRY(2003, 8307,NULL,MDSYS.SDO_ELEM_INFO_ARRAY(1,2,1),MDSYS.SDO_ORDINATE_ARRAY("+strcoords+"))";
 		}
 		return result;
 	}
@@ -94,7 +102,7 @@ public class GISUtils {
      */
     public static String getStartNode(String strcoords) {
     	String[] strArr = strcoords.split(",");
-    	return strArr[0]+","+strArr[1];
+    	return strArr[0].replaceAll(" ", "")+","+strArr[1].replaceAll(" ", "");
     }
     
     /**
@@ -433,4 +441,25 @@ public class GISUtils {
         newstrcrd = newstrcrd.substring(0, newstrcrd.length() - 1);
         return newstrcrd;
     }
+    
+    /**
+     * 将坐标字符串转换为坐标集合
+     * @param strpoints
+     * @param points
+     */
+    public static final  void genPoints(String strpoints,List<String> points){
+		if(strpoints!=null && strpoints.length()>0){
+			String[] pointsarr = strpoints.split(",");
+			if(pointsarr.length>=2){
+				if(points == null){
+					points = new ArrayList<String>();
+				}
+				for(int i=0;i<pointsarr.length/2;i++){
+					String point = pointsarr[i*2]+","+pointsarr[i*2+1];
+					points.add(point);
+				}
+			}
+		}
+	}
+    
 }
