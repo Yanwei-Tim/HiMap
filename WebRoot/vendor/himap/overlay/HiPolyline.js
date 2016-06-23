@@ -15,45 +15,25 @@ define([], function() {
 	
 	HiPolyline.prototype.init = function(points, color, weight, opacity , arrow){};
 	
-    HiPolyline.prototype.addListener = function(action, func){
-		this.polyline.addListener(action,func);
-	};
+    HiPolyline.prototype.addListener = function(action, func){};
 	
-	HiPolyline.prototype.getCoordSequence = function(){
-		this.polyline.getCoordSequence();
-	}
+	HiPolyline.prototype.getCoordSequence = function(){};
 	
-	HiPolyline.prototype.getGeometryType = function(){
-		return this.polyline.getGeometryType();
-	};
+	HiPolyline.prototype.getGeometryType = function(){};
 	
-	HiPolyline.prototype.getLength  = function(){
-		return this.polyline.getLength();
-	}
+	HiPolyline.prototype.getLength  = function(){};
 		
-	HiPolyline.prototype.getMBR = function(){
-		return this.polyline.getMBR ();
-	};
+	HiPolyline.prototype.getMBR = function(){};
 	
-	HiPolyline.prototype.getLineStyle = function(){
-		return this.polyline.getLineStyle();
-	}
+	HiPolyline.prototype.getLineStyle = function(){};
 	
-	HiPolyline.prototype.getZIndex = function(){
-		return this.polyline.getZIndex ();
-	};
+	HiPolyline.prototype.getZIndex = function(){};
 	
-	HiPolyline.prototype.openInfoWindowHtml = function(strHTML){
-		this.polyline.openInfoWindowHtml (strHTML);
-	};
-		
-	HiPolyline.prototype.setLineStyle = function(lineStyle){
-		this.polyline.setLineStyle(lineStyle);
-	}
+	HiPolyline.prototype.openInfoWindowHtml = function(strHTML){};
 	
-	HiPolyline.prototype.setZIndex = function(iIndex){
-		this.polyline.setZIndex(iIndex);
-	};
+	HiPolyline.prototype.setLineStyle = function(lineStyle){};
+	
+	HiPolyline.prototype.setZIndex = function(iIndex){};
 	
 	
 	

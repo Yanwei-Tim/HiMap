@@ -26,7 +26,7 @@ define([],function(){
 			return newstrcoords;
 		}
 		
-		/**获得当前鼠标的坐标*/
+		/**获得当前鼠标的屏幕坐标*/
 		this.getMousePosition = function (e,o){
 			 var mousePosition={x:0,y:0};
 			 var x,y;
@@ -82,6 +82,31 @@ define([],function(){
 	    	}
 	    	return param;
 	    }
+	    
+	    //大数据量循环的优化方法
+		this.largeArrayProcess = function(array,process,onceNum,context){
+			var arrPocessTimeout = setTimeout(function(){
+			   	if(array == null || array.length<=0){
+			   		return;
+			   	}
+			   	var count=0;
+			   	var showarray = new Array();
+			   	while(count<onceNum){
+			   		if(array.length==0){
+			   			break;
+			   		}
+			   		var item = array.shift();
+		   			showarray.push(item);
+		   			count++;
+			   	}
+			   	process.call(context,showarray);
+			   if (array.length > 0){
+		           arrPocessTimeout = setTimeout(arguments.callee, 0);
+		       }else{
+		       		//addLayerListener(devicetype);
+		       }
+			}, 0);
+		};
 		
 		
 	}

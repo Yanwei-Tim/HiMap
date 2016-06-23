@@ -1,0 +1,42 @@
+
+<script id="equip_36" type="text/x-handlebars-template">
+<div id='mainbox' style='margin:10px 0px 0px -5px ;background:white;width:370px;height:200px;border:0px solid black;'>
+	<div id='sidebar' style='margin:4px 0px 4px 0px;float:left;background:white;width:160px;height:172px;clear:left;'>
+		<img id='eimgshow' src ='{{currRecord.image1path}}' onerror="javascript:this.src= HiMapConfig.HOSTNAME+'vendor/himap/icons/nopic.png'" width=160px height=170px border =0/>
+		<img src='{{currRecord.image1path}}' onerror="javascript:this.src=HiMapConfig.HOSTNAME+'vendor/himap/icons/nopic.png'" width='160px' height='170px' alt='' id='eimageurl1' style='display:none' />
+		<img src='{{currRecord.image2path}}' onerror="javascript:this.src=HiMapConfig.HOSTNAME+'vendor/himap/icons/nopic.png'" width='160px' height='170px' alt='' id='eimageurl2' style='display:none' />
+		<UL id=idNum class=num>
+			<li onmouseover='himap.showimg(1,this)' id='epiclabel1'>1</li>
+			<li onmouseover='himap.showimg(2,this)' id='epiclabel2'>2</li>
+		</UL>
+	</div>
+	<div id='fluxtitle' style='float:right;margin:4px 0px 0px 0px;width:200px;height:150px;background:white;font-family:Microsoft YaHei;'>
+		<table id='fluxtable' style='width:100%;font-size:12;font-family:Microsoft YaHei;'>
+			{{#if recordList}}
+				<tr><td >设备名称：<span  style='width:130px;overflow-x:hidden;'>
+					<select style='width:130px;vertical-align:middle;font-size:12;font-family:Microsoft YaHei;background:white;' title='{{currRecord.devicename}}' id='videoCtrlName' onchange='himap.videoCtrlChange();'>
+						<option title='{{currRecord.devicename}}' value='{{currRecord.deviceid}}' selected>{{currRecord.devicename}}</option>
+						{{#each recordList}}
+						<option title='{{devicename}}' value='{{deviceid}}'>{{devicename}}</option>
+						{{/each}}
+					</select>
+				</span></td></tr>
+			{{else}}
+				<tr><td>设备名称：<label id='devicename' title='{{currRecord.devicename}}'>{{shotparam currRecord.devicename shotlength=10}}</label></td></tr>
+			{{/if}}
+			<tr><td>设备型号：<label id='devicemodel'  title='{{currRecord.devicemodel}}'>{{shotparam currRecord.devicemodel shotlength=10}}</label></td></tr>
+			<tr><td>提供商：<label id='provider'  title='{{currRecord.provider}}'>{{shotparam currRecord.provider shotlength=10}}</label></td></tr>			
+			<tr><td>安装地点：<label id='pointname' title='{{currRecord.pointname}}'>{{shotparam currRecord.pointname shotlength=10}}</label></td></tr>
+			<tr><td>安装日期：<label id='providedate'>{{currRecord.providedate}}</label></td></tr>
+			<tr><td>设备状态：<label id='devicestate'>{{currRecord.statename }}</label></td></tr>
+		</table>
+	</div>
+</div>
+</script>		
+<script  type="text/javascript">
+	
+	function testshow(){
+		alert("ggggg");
+	}
+</script>
+		

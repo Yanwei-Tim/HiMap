@@ -1,7 +1,7 @@
 /**
  * Created by liuxiaobing on 2016-1-5.
  */
-define("HiOverlay",[], function() {
+define([], function() {
     
     //叠加信息类的基类
     var HiOverlay =  function (){

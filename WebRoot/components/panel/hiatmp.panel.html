@@ -1,12 +1,12 @@
 
 <div class="panel">
-    <div class="panel-heading hi-panel-title" ms-if="hasheading">
-        {{heading|html}}
+    <div class="panel-heading hi-panel-title" ms-visible = '@showhead'>
+        <slot name = "heading"></slot>
     </div>
-    <div class="panel-body" ms-if="hascontent">
-       {{tcontent|html}} 
+    <div class="panel-body" >
+       	<slot name = "tcontent"></slot>
     </div>
-    <div class="panel-footer" ms-if="hasfooter">
-    	{{footer|html}}
+    <div class="panel-footer">
+    	<slot name = "footer"></slot>
     </div>
 </div>

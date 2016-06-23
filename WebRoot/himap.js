@@ -12,6 +12,8 @@
 		geoserverURL : "",//geoserver地址，用于展示路况、渲染图等专题图
 		mapmaxlevel : ""//地图最大显示级别
 	};
+	var servicename = "HiMap";
+	//var servicename = "";
 	
 	//从客户端读取地图服务地址，地图类型,回调函数
 	var srcipts = document.getElementsByTagName("script");
@@ -20,10 +22,10 @@
 		if(tempsrc.length>=8 && tempsrc.substring(tempsrc.length-8) == "himap.js"){
 			config.HOSTNAME = tempsrc.substring(0,tempsrc.length-8);
 			if(config.HOSTNAME.indexOf("http")<0){
-				config.HOSTNAME = "http://"+window.location.host+"/HiMap/";
+				config.HOSTNAME = "http://"+window.location.host+"/"+(servicename==""?"":servicename+"/");
 				
 			}
-			config.MAPTYPE = srcipts[i].getAttribute("maptype") || "pgis";
+			config.MAPTYPE = srcipts[i].getAttribute("maptype") || "auto";
 			config.MAPREADY = srcipts[i].getAttribute("onready");
 			break;
 		}
@@ -37,7 +39,7 @@
 	} else if (window.XMLHttpRequest) {
 	    request = new XMLHttpRequest();
 	}
-	var url = config.HOSTNAME+"getSysParams?sysparams=2001,2002,2003,2004,2005";
+	var url = config.HOSTNAME+"getSysParams?sysparams=2001,2002,2003,2004,2005,2010";
 	try {
 	    request.onreadystatechange = function(){
 	        if (request.readyState == 4) {
@@ -60,6 +62,8 @@
 	                		config.initlevel = sysparam.paramvalue;
 	                	}else if(sysparam.paramcode == '2005'){
 	                		config.geoserverURL = sysparam.paramvalue;
+	                	}else if(sysparam.paramcode == '2010' && config.MAPTYPE == "auto"){
+	                		config.MAPTYPE = sysparam.paramvalue;
 	                	}
 	                }
 	                if(config.mapurl == ""){
@@ -67,6 +71,25 @@
 	                }else{
 	                	if(config.MAPTYPE == "pgis"){  //载入PGIS API
 		                    document.writeln("<SCRIPT type='text/javascript' src='"+config.mapurl+"'><\/SCRIPT>");
+		                    var scriptObj=document.createElement("script");
+							scriptObj.type="text/javascript";
+							scriptObj.src=config.HOSTNAME+"vendor/require/require.js";
+							scriptObj.setAttribute("data-main",config.HOSTNAME+"vendor/himap/himapmain");
+							document.getElementsByTagName("head")[0].appendChild(scriptObj);
+	                	}else if(config.MAPTYPE == "arcgis"){ //arcgis 配置
+	                		dojoConfig = {
+							    packages: [
+							    	{ name: "rootpath", location: "../../../.." },
+							        { name: "himap", location: "../../../../vendor/himap" },
+							        { name: "vendor", location: "../../../../vendor" }
+							    ],paths: {
+							        jquery: "../../../jquery/jquery-1.10.2.min"
+							    }
+							};
+	                		HOSTNAME_AND_PATH_TO_JSAPI = config.HOSTNAME.substring(7)+"vendor/arcgis_js_v316_api/3.16/";
+	                		document.writeln("<link rel='stylesheet' href='"+config.HOSTNAME+"vendor/arcgis_js_v316_api/3.16/esri/css/esri.css'/>");
+	                		document.writeln("<SCRIPT type='text/javascript' src='"+config.HOSTNAME+"vendor/arcgis_js_v316_api/3.16/init.js'><\/SCRIPT>");
+	                		document.writeln("<SCRIPT type='text/javascript' src='"+config.HOSTNAME+"vendor/himap/himapmain.js'><\/SCRIPT>");
 	                	}
 	                }
 	                
@@ -78,14 +101,6 @@
 	} catch (exception) {
 	    // alert("您要访问的资源不存在!");
 	}
-	
-	
-	
-	var scriptObj=document.createElement("script");
-	scriptObj.type="text/javascript";
-	scriptObj.src=config.HOSTNAME+"vendor/require/require.js";
-	scriptObj.setAttribute("data-main",config.HOSTNAME+"vendor/himap/himapmain.js");
-	document.getElementsByTagName("head")[0].appendChild(scriptObj);
 	
 	var cssObj=document.createElement("link");
 	cssObj.real="stylesheet";

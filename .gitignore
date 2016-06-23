@@ -1,0 +1,9 @@
+*.class
+.project
+.classpath
+himap.log
+WebRoot/vendor/arcgis_js_v316_api/
+.idea/
+out/
+bin/
+

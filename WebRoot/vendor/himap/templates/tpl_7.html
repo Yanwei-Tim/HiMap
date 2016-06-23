@@ -1,0 +1,65 @@
+
+<script id="tpl_7" type="text/x-handlebars-template">
+	<div id='mainbox' style='margin:10px 0px 0px -5px ;width:405px;height:200px;border:0px solid black;'>
+	 	<div id='sidebar' class='svwp'  style='margin:4px 0px 4px 4px;float:left;width:185px;height:172px;clear:right;'>
+	  		<img id='imgshow' src ='{{pic1}}' onerror="javascript:this.src=HiMapConfig.HOSTNAME+'vendor/himap/icons/nopic.png'" width=160px height=170px border =0>
+			<img  name='imgurl' src='{{pic1}}' onerror="javascript:this.src=HiMapConfig.HOSTNAME+'vendor/himap/icons/nopic.png'" width='160px' height='170px' alt='' id='imageurl1' style='display:none' />
+			<img  name='imgurl' src='{{pic2}}' onerror="javascript:this.src=HiMapConfig.HOSTNAME+'vendor/himap/icons/nopic.png'" width='280px' height='170px' alt='' id='imageurl2' style='display:none' />
+	  		<UL id=idNum class=num>
+	  			<li onmouseover='showimg(1,this)' id='piclabel1'>1</li>
+	  			<li onmouseover='showimg(2,this)' id='piclabel2'>2</li>
+	  		</UL>
+		</div>	
+		<div id='fluxtitle' style='float:right;margin:4px 0px 0px 0px;width:210px;height:150px;font-family:Microsoft YaHei;'>
+			<table id='fluxtable' style='width:210px;font-size:12;font-family:Microsoft YaHei;'>
+				<tr><td></td></tr>
+				<tr><td style='word-break: break-all;' title={{title}}>名称:  {{shotparam title shotlength=10}}</td></tr>
+				<tr><td style='word-break: break-all;'>所属大队:  <label id='ddeptname'>{{ddeptname}}</label></td></tr>
+				<tr><td style='word-break: break-all;'>所属中队:  <label id='zhongdeptname'>{{zhongdeptname}}</label></td></tr>
+				{{#if suidao}}
+					<tr><td style='word-break: break-all;'>所属道路:  <label id='dlmc'>{{dlmc}}</label></td></tr>
+					<tr><td>方向:  <label id='roadid1'>{{direction}}</label></td></tr>
+					<tr><td>起止桩号:  <label id='roadid1'>{{startpoint}}--{{endpoint}}</label></td></tr>
+					<tr><td>车道数:  <label id='roadid1'>{{lancount}}</label></td></tr>
+					<tr><td>长度:  <label id='roadid1'>{{length}}</label></td></tr>
+				{{/if}}
+				{{#if hutonglijiao}}
+					<tr><td style='word-break: break-all;'>所属道路:  <label id='dlmc'>{{dlmc}}</label></td></tr>
+					<tr><td style='word-break: break-all;'>互通高速名称:  <label id='roadid1'>{{gsgls}}</label></td></tr>
+				{{/if}}
+				{{#if fuwuqu}}
+					<tr><td style='word-break: break-all;'>所属道路:  <label id='dlmc'>{{dlmc}}</label></td></tr>
+					<tr><td style='word-break: break-all;'>所属单位:  <label id='roadid1'>{{managementdept}}</label></td></tr>
+				{{/if}}
+				{{#if churukou}}
+					<tr><td style='word-break: break-all;'>所属道路:  <label id='dlmc'>{{dlmc}}</label></td></tr>
+					<tr><td style='word-break: break-all;'>位置桩号:  <label id='roadid1'>{{startpoint}}</label></td></tr>
+					<tr><td style='word-break: break-all;'>出口通向地点:  <label id='roadid1'>{{alleywayto}}</label></td></tr>
+				{{/if}}
+				{{#if shoufeizhan}}
+					<tr><td style='word-break: break-all;'>所属道路:  <label id='dlmc'>{{dlmc}}</label></td></tr>
+					<tr><td>进收费岛数量:  <label id='roadid1'>{{intollcount}}</label></td></tr>
+					<tr><td>出收费岛数量:  <label id='roadid1'>{{outtollcount}}</label></td></tr>
+					<tr><td>ETC车道:  <label id='roadid1'>{{etc}}</label></td></tr>
+				{{/if}}
+				{{#if zhifazhan}}
+					<tr><td style='word-break: break-all;'>所属单位:  <label id='roadid1'>{{managementdept}}</label></td></tr>
+				{{/if}}
+			</table>
+		</div>
+ 	</div>	
+</script>		
+<script  type="text/javascript">
+	function showimg(picnum,obj){
+		document.getElementById("imgshow").src= document.getElementById("imageurl"+picnum).src;
+		var imglength = document.getElementsByName("imgurl").length;
+		for(var i=1;i<=imglength;i++){
+			if(i==picnum){
+				document.getElementById("piclabel"+(i)).className="on";
+			}else{
+				document.getElementById("piclabel"+(i)).className="";
+			}
+		}
+	}
+</script>
+		

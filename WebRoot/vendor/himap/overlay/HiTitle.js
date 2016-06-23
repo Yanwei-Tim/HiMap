@@ -3,7 +3,7 @@
  */
 define([], function() {
     
-    var HiTitle =  function(name,fontSize,pos,font,color,bgColor){
+    var HiTitle =  function(name,fontSize,pos,font,color,bgColor,borderColor,borderSize){
 		
 		
 		this.name = name;
@@ -12,14 +12,16 @@ define([], function() {
     	this.font = font;
     	this.color = color;
     	this.bgColor = bgColor;
+    	this.borderColor = borderColor;
+    	this.borderSize = borderSize;
     	
     	this.title = null;
     	this.point = null;
     	
-		this.init(name,fontSize,pos,font,color,bgColor);
+		this.init(name,fontSize,pos,font,color,bgColor,borderColor,borderSize);
     	
     };
-    HiTitle.prototype.init = function(name,fontSize,pos,font,color,bgColor){};
+    HiTitle.prototype.init = function(name,fontSize,pos,font,color,bgColor,borderColor,borderSize){};
     HiTitle.prototype.setParam = function(paramname,paramvalue){};
     
 	

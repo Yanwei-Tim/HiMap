@@ -3,33 +3,16 @@
  */
 define(["avalon","jquery","text!./hiatmp.panel.html","css!./hiatmp.panel"], function(avalon,$,template) {
 
-    avalon.component("hi:panel", {
-        $slot:"content",        
-        content:"",
-        $template: template,
-        $replace: 1,
-
-        color:"default",
-        hasheading:false,
-        hascontent:false,
-        hasfooter:false,
-        heading:"",
-        tcontent:"",
-        footer:"",
-
-        $init:function(vm,elem){
-            var root = avalon(elem);
-            root.addClass("panel-"+vm.color);
-            normailize(vm,elem);
-        },
-        $ready: function(vm, elem) {
-            //avalon(elem).css("width","100%");
-            //alert($('#tree').text());
-            //console.log("panel构建完成")
+    avalon.component("ms-panel", {
+        template: template,
+        defaults: {
+	        heading:"",
+	        tcontent:"",
+	        footer:"",
+	        showhead : false
         }
-        
     })
-
+    
     function normailize(vm,elem){
         var elems = elem.childNodes;
         var divs=[];
@@ -38,10 +21,7 @@ define(["avalon","jquery","text!./hiatmp.panel.html","css!./hiatmp.panel"], func
                 divs.push(el);
             }
         }
-        vm.hascontent = (divs.length>=1);
-        vm.hasheading = (divs.length>=2);
-        vm.hasfooter = (divs.length>=3);
-        
+        alert(divs.length);
         switch(divs.length){
             case 1:
                 vm.tcontent = divs[0];
@@ -55,14 +35,6 @@ define(["avalon","jquery","text!./hiatmp.panel.html","css!./hiatmp.panel"], func
                 vm.tcontent = divs[1];
                 vm.footer = divs[2];
                 break;
-        }
-        if(vm.hasheading){
-            var headelems = vm.heading.childNodes;
-            for(var i=0,el;el=headelems[i++];){
-                if(el.nodeType===1 && el.tagName.match("^H[0-9]{1}")){
-                    avalon(el).addClass("panel-title");
-                }
-            }
         }
     }
 

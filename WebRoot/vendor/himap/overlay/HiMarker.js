@@ -15,7 +15,6 @@ define([], function() {
 	
 	//显示信息筐
 	HiMarker.prototype.openInfoWindowHtml= function (htmlStr){
-		this.marker.openInfoWindowHtml(htmlStr);
 	};
 
 	//加入事件，其中action为字符型,可以是如下:

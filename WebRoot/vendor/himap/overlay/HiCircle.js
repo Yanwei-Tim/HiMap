@@ -16,13 +16,13 @@ define([], function() {
 	
 	HiCircle.prototype.init = function(points, color, weight, opacity, fillcolor){};
 	
-    HiCircle.prototype.getRadius= function(){
-		return this.circle.getRadius();
-	};
+    HiCircle.prototype.getRadius= function(){};
 	
-	HiCircle.prototype.getCenter = function(){
-		return this.circle.getCenter();
-	}
+	HiCircle.prototype.getCenter = function(){};
+	
+	HiCircle.prototype.addListener = function(action, func){};
+	
+	HiCircle.prototype.openInfoWindowHtml = function(strHTML){};
 	
     return HiCircle;
 

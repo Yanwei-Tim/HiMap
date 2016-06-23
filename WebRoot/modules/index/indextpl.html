@@ -1,0 +1,72 @@
+
+<div id="mapToolDiv" class = "mapToolDiv">
+	<ul>
+		<li id="layers" title="图层面板"  ><img src="modules/index/images/layers.png" /></li>
+		<li id="tools" title="工具" ><img src="modules/index/images/tools.png"  /></li>
+		<li id="equipsearch" title="设备搜索" ><img  src="modules/index/images/search.png"/></li>
+   	</ul>
+</div>
+<div id="layerDiv" class = "layerDiv autoHide">
+	<div id="maxicontooltip" style='display:none;position:absolute'>您最多只能设置10个快捷方式</div>
+	<ul></ul>
+</div>
+<div id="toolDiv" class = "toolDiv autoHide">
+	<ul>
+		<li><div id='clear'> 清空</div> </li>
+		<li><div id='leng'> 测距</div> </li>
+		<li><div id='area'> 测面积</div> </li>
+		<li><div id='view'> 鹰眼</div> </li>
+		<li><div id='print'> 地图打印</div> </li>
+		<li><div id='oneKeySearch'>一键查询</div> </li>
+		<li><div id='workPanelNote'>提示面板</div> </li>
+		<li><div id='illegalHeat'> 违法热点图</div> </li>
+		<li><div id='policeHeat'> 警情热点图</div> </li>
+	</ul>
+</div>
+<div id="searchDiv" class = "searchDiv autoHide">
+	<ul>
+		<li><div id='rectsearch'> 拉框搜索</div> </li>
+		<li><div id='equipsearch'> 设备搜索</div> </li>
+	</ul>
+</div>
+<div id="mapServerDiv">
+	<!-- <div id='currMapServer' style='float:right'>矢量地图</div> -->
+</div>
+
+<div id="zoomDiv">
+	<ul>
+		<li id="zoomin" title="放大"  ><img src="modules/index/images/zoomin.png" style='width:100%;height:100%' /></li>
+		<li id="zoomout" title="缩小" ><img src="modules/index/images/zoomout.png" style='width:100%;height:100%' /></li>
+   	</ul>
+</div>
+
+<!-- 图层展示 -->
+<script id="tpl_layerdiv" type="text/x-handlebars-template">
+	<ul>
+		{{#layergroups}}
+		<li>
+			 <div class='layer_title'> <img  src='{{licon}}' style='vertical-align:middle;width:17px;height:17px;' />&nbsp;{{lname}}</div> 
+			 <div class = 'layer_content'>
+				<table border='0' class = 'layer_table'>
+					{{#layers}}
+					<tr>
+						{{#TRlayers}}
+						<td>
+							<input type='hidden' class='modulename' value='{{modulename}}'/>
+							<input type='hidden' class='cfunc' value=\"{{cfunc}}\"/>
+                            <input type='hidden' class='ucfunc' value=\"{{ucfunc}}\"/>
+							<div class ='layer_check'><img src='modules/index/images/uncheck.png'/></div>
+							<span  id='{{lid}}' class='layer_type'>
+								<img  class="layer_icon" src="{{licon}}" title='{{lname}}' />{{lname}}
+							</span>
+							&nbsp;&nbsp;<img src='modules/index/images/nail.png' class='nail' title='固定在右侧' />
+						</td>
+						{{/TRlayers}}
+					</tr>
+					{{/layers}}
+				</table>
+			</div>
+		</li>
+		{{/layergroups}}
+	</ul>
+</script>

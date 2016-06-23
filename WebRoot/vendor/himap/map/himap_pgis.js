@@ -1,22 +1,18 @@
 ﻿/**
  * Created by liuxiaobing on 2016-1-5.
  */
-define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
+define(["map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 		"overlay/HiMarker","overlay/HiMBR","overlay/HiOverlay",
 		"overlay/HiPoint","overlay/HiPolygon","overlay/HiPolyline",
-		"overlay/HiRect","overlay/HiTitle","../handlebar/handlebars","overlay/HiCircle","overlay/HiRectangle"], 
-		function($,CONFIG,HiMap,Tools,HiIcon,HiMarker,HiMBR,HiOverlay,
-				 HiPoint,HiPolygon,HiPolyline,HiRect,HiTitle,Handlebars,HiCircle,HiRectangle) {
+		"overlay/HiRect","overlay/HiTitle","overlay/HiCircle",
+		"overlay/HiRectangle","layer/HiWMSLayer"], 
+		function(CONFIG,HiMap,Tools,HiIcon,
+				 HiMarker,HiMBR,HiOverlay,
+				 HiPoint,HiPolygon,HiPolyline,
+				 HiRect,HiTitle,HiCircle,
+				 HiRectangle,HiWMSLayer) {
     
     var checkParam = Tools.checkParam;
-    
-    Handlebars.registerHelper("shotparam",function(param,options){
-    	var length = options.hash.shotlength;
-    	if(param.length>length){
-    		param = param.substring(0,length)+"...";
-    	}
-    	return param;
-    });
     
     HiMap.prototype.init = function(mapdiv,mapInitParams){
     	this.mapdiv = mapdiv;
@@ -133,7 +129,7 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 	
     /**									
      * 地图定位，同 moveTo
-     * @param {(String|HiPoint)} strCoords 地图中心点
+     * @param {(String|HiPoint)} strcoords 地图中心点
      * @param {Number} [zoomlevel]	地图显示级别
      * @return {IHiMap}
      */
@@ -153,17 +149,20 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 	
 	/**		
      * 地图定位，同 centerAndZoom
-     * @param {(String|HiPoint)} strCoords 地图中心点
+     * @param {(String|HiPoint)} strcoords 地图中心点
      * @param {Number} [zoomlevel]	地图显示级别
      * @return {IHiMap}
      */
-    HiMap.prototype.moveTo = function (strCoords,zoomlevel){
-		this.centerAndZoom(strCoords,zoomlevel);
+    HiMap.prototype.moveTo = function (strcoords,zoomlevel){
+		this.centerAndZoom(strcoords,zoomlevel);
 		return this;
 	};
 	
     //在指定的位置显示信息		
     HiMap.prototype.openInfoWindow = function(pPoint,html){
+    	if(typeof(pPoint) == "string"){
+    		pPoint = new Point(pPoint);
+    	}
 		this.map.openInfoWindow(pPoint,html);
 	};
 	
@@ -171,10 +170,10 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
     HiMap.prototype.getCenterLatLng = function(){
 		return this.map.getCenterLatLng();
 	};
-    //返回当前视窗的经纬度边框.类型:HiMBR				*******************attention**************************
+    //返回当前视窗的经纬度边框.类型:HiMBR				
     HiMap.prototype.getBoundsLatLng = function(){
 		var mbr = this.map.getBoundsLatLng();
-		return new HiMBR(mbr.minX,mbr.minY,mbr.maxX,mbr.maxX);
+		return new HiMBR(mbr.minX,mbr.minY,mbr.maxX,mbr.maxY);
 		//return this.map.getBoundsLatLng();
 	};
 
@@ -209,9 +208,31 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
      " measure":测量 "pan":平移模式 “drawPoint”：获取坐标点 “drawCircle”：画圆 “drawRect”：画矩形 “drawPolyline”：画线 “drawPolygon”：画多边型 
      * @param {Function} [callback]	回调函数
      */
-    HiMap.prototype.changeDragMode = function(drawmode,callback){
-		this.map.changeDragMode(drawmode,null,null,callback);
+    HiMap.prototype.changeDragMode = function(drawmode,x,y,callback){
+		this.map.changeDragMode(drawmode,x,y,callback);
 	};
+	
+	//屏幕坐标转地理坐标
+	HiMap.prototype.containerCoord2Map = function(x,y){
+		var _MapApp = this.map;
+		var xpos;
+		var ypos;
+		var pCenterLatLng = _MapApp.getCenterLatLng();
+		 if( typeof(_MapApp.containerCoord2Map) == "function"){
+		 	var _MapApp = this.map;
+			var pos = _MapApp.containerCoord2Map(new Point(x,y));
+			xpos = pos.x;
+			ypos = pos.y;
+		}else if( typeof(_PixelsPerDegree) == "undefined"){
+			xpos = pCenterLatLng.x + (x - _MapApp.map.viewSize.width / 2) * _MapApp.map.baseLayer.tileInfo.levelDetails[_MapApp.map.realZoomLevel].resolution;
+        	ypos = pCenterLatLng.y - (y - _MapApp.map.viewSize.height / 2) * _MapApp.map.baseLayer.tileInfo.levelDetails[_MapApp.map.realZoomLevel].resolution;;
+		}else{
+			xpos = pCenterLatLng.x + (x - _MapApp.map.viewSize.width / 2) / _PixelsPerDegree[_MapApp.getZoomLevel()].x;
+			ypos = pCenterLatLng.y - (y - _MapApp.map.viewSize.height / 2) / _PixelsPerDegree[_MapApp.getZoomLevel()].y;
+		}
+		return {x:xpos,y:ypos};
+	}
+	
 	
     /**
      * 在当前地图上加入给定的对象			
@@ -219,18 +240,24 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
      * @return {IHiMap}
      */
     HiMap.prototype.addOverlay = function (overlay){
-		this.map.addOverlay(overlay);
+		this.map.addOverlay(overlay.overlay);
 		return this;
 	};
 	
     //在地图上删除给定的对象		
     HiMap.prototype.removeOverlay = function (overlay){
-		this.map.removeOverlay(overlay);
+    	try{
+			this.map.removeOverlay(overlay.overlay);
+    	}catch(e){
+    	}
 	};
 	
     //在地图上清除所有的对象.		
     HiMap.prototype.clearOverlays = function (){
-		this.map.clearOverlays();
+    	try{
+			this.map.clearOverlays();
+    	}catch(e){
+    	}
 	};
 	
     //返回信息叠加类，iOverLay对象的数组
@@ -264,11 +291,11 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 	
     /**
      * 设置地图中心点
-     * @param {(String|HiPoint)} strCoords
+     * @param {(String|HiPoint)} strcoords
      * @return {IHiMap}
      */
-    HiMap.prototype.setCenter = function (strCoords) {
-		this.recenterOrPanToLatLng(strCoords);
+    HiMap.prototype.setCenter = function (strcoords) {
+		this.recenterOrPanToLatLng(strcoords);
 	};
 	
     /**
@@ -277,7 +304,12 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
      * @return {IHiMap}
      */
     HiMap.prototype.drawPoint = function (callback) {
-		this.map.changeDragMode("drawPoint",null,null,callback);
+		var _MapApp =this.map;
+		this.map.changeDragMode("drawPoint",null,null,function(pos){
+				_MapApp.changeDragMode('');
+				_MapApp.changeDragMode('pan');
+				callback.call(this,pos);
+			});
 		return this;
 	};
 	
@@ -287,7 +319,12 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
      * @return {IHiMap}
      */
     HiMap.prototype.drawRect = function (callback) {
-		this.map.changeDragMode("drawRect",null,null,callback);
+		var _MapApp =this.map;
+		this.map.changeDragMode("drawRect",null,null,function(pos){
+				_MapApp.changeDragMode('');
+				_MapApp.changeDragMode('pan');
+				callback.call(this,pos);
+			});
 		return this;
 	};
 	
@@ -297,7 +334,12 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
      * @return {IHiMap}
      */
     HiMap.prototype.drawCircle = function (callback) {
-		this.map.changeDragMode("drawCircle",null,null,callback);
+		var _MapApp =this.map;
+		this.map.changeDragMode("drawCircle",null,null,function(pos){
+				_MapApp.changeDragMode('');
+				_MapApp.changeDragMode('pan');
+				callback.call(this,pos);
+			});
 		return this;
 	};
 	
@@ -307,7 +349,14 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
      * @return {IHiMap}
      */
     HiMap.prototype.drawPolyline = function (callback) {
-		this.map.changeDragMode("drawPolyline",null,null,callback);
+		var _MapApp =this.map;
+    	this.map.map.vmlDashline = null;
+		this.map.map.bDrawEnd = true;
+		this.map.changeDragMode("drawPolyline",null,null,function(pos){
+				_MapApp.changeDragMode('');
+				_MapApp.changeDragMode('pan');
+				callback.call(this,pos);
+			});
 		return this;
 	};
 	
@@ -317,424 +366,25 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
      * @return {IHiMap}
      */
     HiMap.prototype.drawPolygon = function (callback) {
-		this.map.changeDragMode("drawPolygon",null,null,callback);
+		var _MapApp =this.map;
+		this.map.changeDragMode("drawPolygon",null,null,function(pos){
+				_MapApp.changeDragMode('');
+				_MapApp.changeDragMode('pan');
+				callback.call(this,pos);
+			});
 		return this;
-	};
-		
-    /**
-     *在地图上叠加一个设备图标
-     *  @typedef {Object} ShowDeviceParam
-     *  @property {String} deviceid 设备编号
-     *  @property {String} devicetype 设备类型
-     *  @property {String} iconurl 设备图标
-     *  @property {Boolean} [centable] 是否居中展示,默认false
-     *************************************************
-     * @param {ShowDeviceParam|String} params 参数对象，可选的字段参考ShowDeviceParam定义
-     * @return H 返回叠加到地图上的设备对象
-     */
-    HiMap.prototype.showDevice = function (device) {
-    	//计算设备数据
-    	var needajax = false;
-    	var deviceid = "";
-    	var equipmentinfo = null;
-    	var basethis = this;
-    	if(typeof(device) == "string"){
-    		needajax = true;
-    		deviceid = device;
-    	}else if(typeof(device) == "object"){
-    		if(!checkParam(device.devicetype,"") || !checkParam(device.longitude,"") || !checkParam(device.latitude,"")){
-    			needajax = true;
-    		}
-    		deviceid = device.deviceid;
-    	}
-    	if(needajax){
-    		Tools.sendAjax(HiMapConfig.HOSTNAME+"query/getEquipmentInfo?deviceid="+deviceid,function(result){
-    			equipmentinfo = result;
-    			device = $.extend(result.currRecord,device);
-    		});
-    	}
-			
-		//计算图标
-		if(!checkParam(device.iconurl,"string")){
-			var config = CONFIG.devicetypes[device.devicetype];
-			var iconparams = config.icon.split("_");
-			var imgpath ="";
-			for(var i = 0;i < iconparams.length; i++){
-				var paramname = iconparams[i];
-				var paramvalues = [];
-				var bIsExist = false;	
-				
-				if(paramname.indexOf("(")>0){
-					paramvalues = paramname.substring(paramname.indexOf("(")+1,paramname.indexOf(")")).split(",");
-					paramname = paramname.substring(0,paramname.indexOf("("));
-					for (var j = 0 ; j < paramvalues.length ; j++ ){
-						if(device[paramname] ==	paramvalues[j]){		//如果在括号中,改为TRUE
-							bIsExist = true;
-							break;
-						}
-					}
-					if(!bIsExist){
-						device[paramname] = paramvalues[0];	//	默认
-					}
-					imgpath +=device[paramname]+ "_" ;
-				}else {
-					if(typeof(device[paramname]) == "undefined" ||device[paramname] == ''){
-						continue;
-					}
-					imgpath +=device[paramname]+ "_" ;
-				}
-			}
-			imgpath = imgpath.substring(0,imgpath.length-1);
-			imgpath = imgpath.replace(/_null/g,"");
-			device.iconurl = HiMapConfig.HOSTNAME+"vendor/himap/icons/device/"+imgpath+".png";
-		}
-    	
-		var strcoords = device.longitude+','+device.latitude;
-		var monitor = this.showMonitor({strcoords:strcoords,title:device.devicename,imgurl:device.iconurl,centable:device.centable});
-		monitor.clicklistener = function(){
-			if(equipmentinfo == null){
-				Tools.sendAjax(HiMapConfig.HOSTNAME+"query/getEquipmentInfo?deviceid="+deviceid,function(result){
-	    			equipmentinfo = result;
-	    		});
-			}
-			if($("#equip_"+device.devicetype).html() == undefined){
-				Tools.sendAjax(HiMapConfig.HOSTNAME+"vendor/himap/templates/equip_"+device.devicetype+".html",function(result){
-					$(basethis.mapdiv).append(result);
-	    		},false,"text");
-			}
-			var template = Handlebars.compile( $("#equip_"+device.devicetype).html());
-	    	monitor.openInfoWindowHtml(template(equipmentinfo));
-			
-		};
-		monitor.addListener("click",monitor.clicklistener);
-		monitor.data = device;
-		return monitor;
-	};
-	
-    /**
-     * 删除一个叠加到地图上的设备图标
-     * @param {(HiDeviceMarker|String)} deviceMonitor 叠加到地图上的设备对象，或者一个具体的设备编号
-     * @return {IHiMap}
-     */
-    HiMap.prototype.removeDevice = function (deviceMonitor) {};
-
-    /**
-     * 在地图上叠加自定义图标
-     *  @typedef {Object} ShowMonitorParam
-     *  @property {String} strcoords 坐标点
-     *  @property {String} title 标题
-     *  @property {String} imgurl 图标路径
-     *  @property {Number} [width] 图标宽度，默认24
-     *  @property {Number} [height] 图标高度，默认24
-     *  @property {String} [infowindow] 弹出信息框的内容，默认为空,无信息时不弹出
-     *  @property {Boolean} [centable] 是否居中展示,默认false
-     *  @property {String} [titlebgcolor] 标题背景色,默认白色
-     *  @property {Boolean} [showtitle] 是否始终展示标题，默认false，当鼠标移上时展示标题
-     *  @property {String} [titlecolor] 标题颜色,默认黑色
-     **************************************************
-     * @param {ShowMonitorParam} params 参数对象，可选的字段参考ShowDeviceParam定义
-     * @return {HiMarker} 返回叠加到地图上的自定义图标对象	
-     */
-    HiMap.prototype.showMonitor = function(params) {
-		
-	    if(!checkParam(params,"object")) return;
-		
-		if(!checkParam(params.strcoords,"string")) return;
-		
-		if(!checkParam(params.title,"string")) return;
-		
-		if(!checkParam(params.imgurl,"string")) return;
-		
-		params.width = checkParam(params.width,"number") || 24;
-		
-		params.height = checkParam(params.height,"number") || 24;
-		
-		//params.infowindow = checkParam(params.infowindow,"string") || "";
-		
-		if(null == params.centable||typeof params.centable != "boolean"){
-			params.centable = false;
-		}
-		
-		params.titlebgcolor = checkParam(params.titlebgcolor,"string") || "white";
-		
-		if(null == params.showtitle||typeof params.showtitle != "boolean"){
-			params.showtitle = false;
-		}
-		
-		params.titlecolor = checkParam(params.titlecolor,"string") || "black";
-		
-		
-		var pPoint = params.strcoords.split(",");
-        var  x = parseFloat(pPoint[0]);
-        var  y = parseFloat(pPoint[1])
-		var tempPoint = new HiPoint(x,y);
-		
-		
-	
-		var tempIcon= new HiIcon();
-		tempIcon.setParam("image",params.imgurl);
-		tempIcon.setParam("width",params.width);
-		tempIcon.setParam("height",params.height);
-	
-	
-		var tempTitle = new HiTitle(params.title);
-		tempIcon.setParam("color",params.titlecolor);
-		tempIcon.setParam("bgColor",params.titlebgcolor);
-		
-		if(params.centable == true)
-		{
-			this.recenterOrPanToLatLng(params.strcoords);
-		}
-		
-		var tempMarker = new HiMarker(tempPoint,tempIcon,tempTitle);
-		
-		if(params.showtitle == false){
-			tempMarker.hideTitle();
-			tempMarker.addListener("mouseover",function(){tempMarker.showTitle()});
-			tempMarker.addListener("mouseout",function(){tempMarker.hideTitle()});
-		}else{
-			tempMarker.showTitle();
-		}
-		
-		if(checkParam(params.infowindow,"string") == params.infowindow){
-			tempMarker.addListener("click",function(){tempMarker.openInfoWindowHtml(params.infowindow)});
-		}
-		
-		this.addOverlay(tempMarker.marker);//***注意***这里是HiMarker***
-		
-		return tempMarker;
-	
-	};
-	
-    /**							
-     * 删除自定义图标
-     * @param {HiMarker} marker
-     * @return {IHiMap}
-     */
-    HiMap.prototype.removeMonitor = function (marker) {
-		if(typeof marker.marker !=  "undefined"){
-			this.map.removeOverlay(marker.marker);
-		}
-	};
-	
-     /**根据xml展示自定义点,xml格式：
-      *<marker id='...'>                    id 为marker 的唯一标识
-      *    <title>..</title>                标题
-      *    <x>...</x>                       经度			
-      *    <y>...</y>                       纬度
-      *    <templateid>..</templateid>      模板编号，决定marker的图标和弹出信息窗的内容，在IHiMapConfig.js 文件中定义
-	  *    <centable></centable>            是否居中显示，值为true或false。默认为false
-      *   <showtitle></showtitle>           是否始终展示标题
-      *    <markerinfo>
-      *        <...>                        自定义的内容
-      *    </markerinfo>
-      *</marker>
-      */
-  	HiMap.prototype.showMonitorByXML = function (strxml) {
-		var xmlDoc=null;
-		//判断浏览器的类型
-		//支持IE浏览器 
-		if(!window.DOMParser && window.ActiveXObject){   //window.DOMParser 判断是否是非ie浏览器
-			var xmlDomVersions = ['MSXML.2.DOMDocument.6.0','MSXML.2.DOMDocument.3.0','Microsoft.XMLDOM'];
-			for(var i=0;i<xmlDomVersions.length;i++){
-				try{
-					xmlDoc = new ActiveXObject(xmlDomVersions[i]);
-					xmlDoc.async = false;
-					xmlDoc.loadXML(strxml); //loadXML方法载入xml字符串
-					break;
-				}catch(e){
-				}
-			}
-		}
-		//支持Mozilla浏览器
-		else if(window.DOMParser && document.implementation && document.implementation.createDocument){
-			try{
-				/* DOMParser 对象解析 XML 文本并返回一个 XML Document 对象。
-				 * 要使用 DOMParser，使用不带参数的构造函数来实例化它，然后调用其 parseFromString() 方法
-				 * parseFromString(text, contentType) 参数text:要解析的 XML 标记 参数contentType文本的内容类型
-				 * 可能是 "text/xml" 、"application/xml" 或 "application/xhtml+xml" 中的一个。注意，不支持 "text/html"。
-				 */
-				domParser = new  DOMParser();
-				xmlDoc = domParser.parseFromString(strxml, 'text/xml');
-			}catch(e){
-			}
-		}
-		xmlDoc.getElementsByTagName("marker")[0].childNodes[0].getAttribute("id");
-		xmlDoc.getElementsByTagName("title")[0].childNodes[0].nodeValue;
-		xmlDoc.getElementsByTagName("x")[0].childNodes[0].nodeValue;
-		xmlDoc.getElementsByTagName("y")[0].childNodes[0].nodeValue;
-		xmlDoc.getElementsByTagName("templateid")[0].childNodes[0].nodeValue;
-		xmlDoc.getElementsByTagName("centable")[0].childNodes[0].nodeValue;
-		xmlDoc.getElementsByTagName("showtitle")[0].childNodes[0].nodeValue;
-		xmlDoc.getElementsByTagName("markerinfo")[0].childNodes[0].nodeValue;
-		
-		
-	};
-	
-	
-	
-   /**
-    * 在地图上显示一条线			
-    * @typedef {Object} showPolylineParam
-    * @property {String} strCoords 坐标点集合
-    * @property {String} infohtml 点击弹出信息框的内容
-    * @property {String} color 线的颜色
-    * @property {Int} weight 线的宽度
-    * @property {Float} opacity 透明度
-    * @property {Int} arrow 线的方向 0：无方向（默认）；1：为正方向；-1：为负方向
-    * @property {String} linestyle 线形 "none","dash","dashdot","dot","longdash","longdashdot","shortdash","shortdashdot","shortdashdotdot","longdashdotdot","shortdot"
-    * @property centable 是否居中，默认居中
-    **************************************************
-    * @param {showPolylineParam} params 参数对象，可选的字段参考showPolylineParam定义
-    */
-	HiMap.prototype.showPolyline = function (params) {
-		
-		if(!checkParam(params,"object")) return;
-		
-		if(!checkParam(params.strCoords,"string")) return;
-		
-		//if(!checkParam(params.infohtml,"string")) return;
-		
-		if(!checkParam(params.color,"string")) return;
-		
-		//因为如果参数为0时，同样会return掉，故未使用(!checkParam(params.color,"string"))方法判断
-		if(typeof checkParam(params.weight,"number") != "number") return;
-		
-		if(typeof checkParam(params.opacity,"number") != "number") return;
-	
-		//if(typeof checkParam(params.arrow,"number") != "number")return;
-		params.arrow = checkParam(params.arrow,"number") || 0;
-		
-		params.linestyle = checkParam(params.linestyle,"string") || "none";
-		
-		if(null == params.centable||typeof params.centable != "boolean"){
-			params.centable = true;
-		}
-	
-		var tempPolyline =  new HiPolyline(params.strCoords,params.color, params.weight, params.opacity, params.arrow);
-		
-		tempPolyline.setLineStyle(params.linestyle);
-		
-		if(checkParam(params.infohtml,"string") == params.infohtml){
-			tempPolyline.addListener("click",function(){tempPolyline.openInfoWindowHtml(params.infohtml)});
-		}
-		
-		if(params.centable == true){
-			this.centerAtMBR(tempPolyline.getMBR());
-		}
-		
-		this.addOverlay(tempPolyline.polyline);
-		
-		return tempPolyline;
-		
-	};
-	
-	/**
-     * 在地图上显示显示矩形
-  	 * @typedef {Object} showRectParam
-     * @property {String} strCoords 坐标点集合
-     * @property {String} infohtml 点击弹出信息框的内容
-     * @property {String} color 边框颜色
-     * @property {Int} weight 边框宽度
-     * @property {Float} opacity 透明度
-     * @property {String} fillcolor 填充颜色
-     * @property centable 是否居中，默认居中
-     **************************************************
-     * @param {showRectParam} params 参数对象，可选的字段参考showRectParam定义
-	       */
-	HiMap.prototype.showRect = function (params) {
-		
-		if(!checkParam(params,"object")) return;
-		
-		if(!checkParam(params.strCoords,"string")) return;
-	
-		if(!checkParam(params.color,"string")) return;
-		
-		if(typeof checkParam(params.weight,"number") != "number") return;
-	
-		if(typeof checkParam(params.opacity,"number") != "number") return;
-			
-		if(!checkParam(params.fillcolor,"string")) return;
-		
-		if(null == params.centable||typeof params.centable != "boolean"){
-			params.centable = true;
-		}
-		
-		var tempRectangle =  new HiRectangle(params.strCoords,params.color, params.weight, params.opacity, params.fillcolor);
-		
-		if(checkParam(params.infohtml,"string") == params.infohtml){
-			tempRectangle.addListener("click",function(){tempRectangle.openInfoWindowHtml(params.infohtml)});
-		}
-		
-		if(params.centable == true){
-			this.centerAtMBR(tempRectangle.rectangle.getMBR());//-------------------attention**************************
-		}
-		
-		this.addOverlay(tempRectangle.rectangle);
-		
-		return tempRectangle;
-		
-		
-	};
-	
-	
- 	/**
-     * 在地图上显示显示多边形
-  	 * @typedef {Object} showPolygonParam
-     * @property {String} strCoords 坐标点集合
-     * @property {String} infohtml 点击弹出信息框的内容
-     * @property {String} color 边框颜色
-     * @property {Int} weight 边框宽度
-     * @property {Float} opacity 透明度
-     * @property {String} fillcolor 填充颜色
-     * @property centable 是否居中，默认居中
-     **************************************************
-     * @param {showPolygonParam} params 参数对象，可选的字段参考showPolygonParam定义
-     */
-	HiMap.prototype.showPolygon = function (params) {
-		
-		if(!checkParam(params,"object")) return;
-		
-		if(!checkParam(params.strCoords,"string")) return;
-		
-		if(!checkParam(params.color,"string")) return;
-		
-		if(typeof checkParam(params.weight,"number") != "number") return;
-		
-		if(typeof checkParam(params.opacity,"number") != "number") return;
-		
-		if(!checkParam(params.fillcolor,"string")) return;
-		
-		if(null == params.centable||typeof params.centable != "boolean"){
-			params.centable = true;
-		}
-		
-		var tempPolygon = new HiPolygon(params.strCoords,params.color, params.weight, params.opacity, params.fillcolor);
-		
-		if(checkParam(params.infohtml,"string") == params.infohtml){
-			tempPolygon.addListener("click",function(){tempPolygon.openInfoWindowHtml(params.infohtml)});
-		}
-		
-		if(params.centable == true){
-			this.centerAtMBR(tempPolygon.getMBR());
-		}
-		
-		this.addOverlay(tempPolygon.polygon);
-		
-		return tempPolygon;
-		
 	};
 	
     /**				
      * 波纹效果
-     *strCoords 中心点
+     *strcoords 中心点
      *radius 半径
      */
-    HiMap.prototype.showWave = function (strCoords, radius) {
+    HiMap.prototype.showWave = function (strcoords, radius) {
 		
 		var aradius = radius||500;
-		var pPoints = strCoords+","+this.changeMeterToDegree(strCoords,aradius);
-		var pPoints1 =  strCoords+","+this.changeMeterToDegree(strCoords,aradius);
+		var pPoints = strcoords+","+this.changeMeterToDegree(strcoords,aradius);
+		var pPoints1 =  strcoords+","+this.changeMeterToDegree(strcoords,aradius);
 		var pCircle = new Circle(pPoints, "", 2, 0.5, "white");
 		var pCircle1 = new Circle(pPoints1, "", 2, 0.5, "white");
 		this.map.addOverlay(pCircle);
@@ -752,53 +402,7 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 		setTimeout(function(){pme.removeOverlay(pCircle1);},1100);
 	};
 	
-	 /**
-     * 在地图上显示显示多边形
- 	 * @typedef {Object} showCircleParam
-     * @property {String} strCoords 由 X 坐标、Y 坐标、半径组成坐标序列， 中间用","隔开，如"x1,y1,r"
-     * @property {String} infohtml 点击弹出信息框的内容
-     * @property {String} color 边框颜色
-     * @property {Int} weight 边框宽度
-     * @property {Float} opacity 透明度
-     * @property {String} fillcolor 填充颜色
-     * @property centable 是否居中，默认居中
-     **************************************************
-     * @param {showCircle} params 参数对象，可选的字段参考showCircle定义
-     */
-	HiMap.prototype.showCircle = function (params) {
-		
-		if(!checkParam(params,"object")) return;
-		
-		if(!checkParam(params.strCoords,"string")) return;
-		
-		//if(!checkParam(params.infohtml,"string")) return;
-		
-		if(!checkParam(params.color,"string")) return;
-		
-		if(typeof checkParam(params.weight,"number") != "number") return;
-		
-		if(typeof checkParam(params.opacity,"number") != "number") return;
-		
-		if(!checkParam(params.fillcolor,"string")) return;
-					
-		if(null == params.centable||typeof params.centable != "boolean"){
-			params.centable = true;
-		}
-		
-		var tempCircle = new HiCircle(params.strCoords,params.color, params.weight, params.opacity, params.fillcolor);
-		
-		if(checkParam(params.infohtml,"string") == params.infohtml){
-			tempCircle.addListener("click",function(){tempCircle.openInfoWindowHtml(params.infohtml)});
-		}
-		
-		if(params.centable == true){
-			this.recenterOrPanToLatLng(tempCircle.getCenter());
-		}
-		
-		this.addOverlay(tempCircle.circle);
-		return tempCircle;
-		
-	};
+	 
 	
     //判断两个坐标点之间的距离 单位米	
     HiMap.prototype.getDistanceInLL = function (str1, str2) {
@@ -808,8 +412,8 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 	};
 	
     //将米转换成经纬度			
-    HiMap.prototype.changeMeterToDegree = function (strCoords, distance) {
-		var point = new Point(strCoords.split(",")[0],strCoords.split(",")[1]);
+    HiMap.prototype.changeMeterToDegree = function (strcoords, distance) {
+		var point = new Point(strcoords.split(",")[0],strcoords.split(",")[1]);
 		var degree = this.map.getDegree(point,distance);
 		return degree;
 	};
@@ -845,7 +449,17 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 	HiPoint.prototype.equals= function(hiPoint){
 		this.point.equals(hiPoint.point);
 	};
-//problem
+	
+//—————————————————————————————————HiIcon————————————————————————————————————————————-	
+	/*
+	 * 初始化图标
+	 * @param image
+	 * @param width
+	 * @param height
+	 * @param leftOffset
+	 * @param topOffset
+	 * 
+	 */
 	HiIcon.prototype.init = function(image,width,height,leftOffset,topOffset){
 		this.icon = new Icon();
 		
@@ -877,39 +491,20 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 		this.icon[paramname] = paramvalue;
 	}
 
-	HiTitle.prototype.init = function(name,fontSize,pos,font,color,bgColor){
-		this.title = new Title(name,fontSize,pos,font,color,bgColor);
-		if(typeof name == "string"){
-			this.title.name = name;
-		}
-		
-		if(!isNaN(fontSize)){
-			this.title.fontSize = fontSize;
-		}
-		
-		if(!isNaN(pos)){
-			this.title.pos = pos;
-		}
-		
-		if(typeof color == "string"){
-			this.title.color = color;
-		}
-		
-		if(typeof bgColor == "string"){
-			this.title.bgColor = bgColor;
-		}
-		
+	HiTitle.prototype.init = function(name,fontSize,pos,font,color,bgColor,borderColor,borderSize){
+		this.title = new Title(name,fontSize,pos,font,color,bgColor,borderColor,borderSize);
 	}
 	
 	HiTitle.prototype.setParam = function(paramname,paramvalue){
 		this[paramname] = paramvalue;
-		this.icon[paramname] = paramvalue;
+		this.title[paramname] = paramvalue;
 	}
 	
 	//设置图标显示位置
 	HiTitle.prototype.setPoint = function(pPoint){
 		this.point = pPoint;
 		this.title.setPoint(pPoint.point);
+		this.overlay = this.title;
 	}
 	
 	//获取其位置，类型为HiPoint
@@ -918,11 +513,11 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 	}
 	
 	HiMarker.prototype.init = function(point,icon,title){
-		this.marker = new Marker(point.point,icon.icon,title.title);
+		this.overlay = new Marker(point.point,icon.icon,title.title);
 	}
 	//显示信息筐
 	HiMarker.prototype.openInfoWindowHtml= function (htmlStr){
-		this.marker.openInfoWindowHtml(htmlStr);
+		this.overlay.openInfoWindowHtml(htmlStr);
 	};
 
 	//加入事件，其中action为字符型,可以是如下:
@@ -930,33 +525,33 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 	//'dblclick'：双击
 	//'mouseover'：鼠标在上面移动
 	//'mouseout'：鼠标移出
-	HiMarker.prototype.addListener= function (action,fuct){
-		this.marker.addListener(action,fuct);	
+	HiMarker.prototype.addListener= function (action,func){
+		this.overlay.addListener(action,func);	
 	};
 
     //获取当前的图层序列
     HiMarker.prototype.getZIndex= function (){
-		return this.marker.getZIndex();
+		return this.overlay.getZIndex();
 	};
 
     //设置图层系列
     HiMarker.prototype.setZIndex= function (int){
-		this.marker.setZIndex();
+		this.overlay.setZIndex();
 	};
 
     //显示标题
     HiMarker.prototype.showTitle= function (){
-		this.marker.showTitle();
+		this.overlay.showTitle();
 	};
 
     //隐藏标题
     HiMarker.prototype.hideTitle= function (){
-		this.marker.hideTitle();
+		this.overlay.hideTitle();
 	};
 
     //设置图标显示位置
     HiMarker.prototype.setPoint= function (pPoint){
-		this.marker.setPoint(pPoint.point);
+		this.overlay.setPoint(pPoint.point);
 	};
 
     //获取其位置，类型为Point
@@ -1016,25 +611,172 @@ define(["jquery","map/Config","map/IHiMap","tool/tools","overlay/HiIcon",
 	HiMBR.prototype.getCenterPoint = function(){
 		return this.mbr.getCenterPoint();
 	};
-	
+//—————————————————————————————————HiPolyline————————————————————————————————————————————-	
 	HiPolyline.prototype.init= function(points, color, weight, opacity,arrow){
-		this.polyline = new Polyline(points, color, weight, opacity,arrow);
+		this.overlay = new Polyline(points, color, weight, opacity,arrow);
 	}
 	
+	 HiPolyline.prototype.addListener = function(action, func){
+		this.overlay.addListener(action,func);
+	};
+	
+	HiPolyline.prototype.getCoordSequence = function(){
+		this.overlay.getCoordSequence();
+	}
+	
+	HiPolyline.prototype.getGeometryType = function(){
+		return this.polyline.getGeometryType();
+	};
+	
+	HiPolyline.prototype.getLength  = function(){
+		return this.overlay.getLength();
+	}
+		
+	HiPolyline.prototype.getMBR = function(){
+		return this.overlay.getMBR ();
+	};
+	
+	HiPolyline.prototype.getLineStyle = function(){
+		return this.overlay.getLineStyle();
+	}
+	
+	HiPolyline.prototype.getZIndex = function(){
+		return this.overlay.getZIndex ();
+	};
+	
+	HiPolyline.prototype.openInfoWindowHtml = function(strHTML){
+		this.overlay.openInfoWindowHtml (strHTML);
+	};
+		
+	HiPolyline.prototype.setLineStyle = function(lineStyle){
+		this.overlay.setLineStyle(lineStyle);
+	}
+	
+	HiPolyline.prototype.setZIndex = function(iIndex){
+		this.overlay.setZIndex(iIndex);
+	};
+	
+//————————————————————————————————HiPolygon—————————————————————————————————————————————-
 	HiPolygon.prototype.init = function(points, color, weight, opacity, fillcolor){
-		this.polygon = new Polygon(points, color, weight, opacity, fillcolor);
+		this.overlay = new Polygon(points, color, weight, opacity, fillcolor);
 	}
 	
+	HiPolygon.prototype.addListener = function(action, func){
+		this.overlay.addListener(action,func);
+	};
+	
+	HiPolygon.prototype.getArea = function(){
+		return this.overlay.getArea();
+	}
+	
+	HiPolygon.prototype.getGeometryType = function(){
+		return this.overlay.getGeometryType();
+	}
+	
+	HiPolygon.prototype.getLength = function(){
+		return this.overlay.getLength();
+	}
+	
+	HiPolygon.prototype.getMBR = function(){
+		return this.overlay.getMBR();
+	}
+	
+	HiPolygon.prototype.getZIndex = function(){
+		return this.polygon.getZIndex();
+	}
+	
+	HiPolygon.prototype.openInfoWindowHtml = function(strHTML){
+		this.overlay.openInfoWindowHtml(strHTML);
+	}
+	
+	HiPolygon.prototype.setZIndex = function(iIndex){
+		this.overlay.setZIndex(iIndex);
+	}
+	
+	
+	
+//———————————————————————————————HiCircle————————————————————————————————————————————-	
 	HiCircle.prototype.init = function(points, color, weight, opacity, fillcolor){
-		this.circle = new Circle(points, color, weight, opacity, fillcolor);
+		this.overlay = new Circle(points, color, weight, opacity, fillcolor);
 	};
 	
+	HiCircle.prototype.getRadius= function(){
+		return this.overlay.getRadius();
+	};
+	
+	HiCircle.prototype.getCenter = function(){
+		return this.overlay.getCenter();
+	}
+	
+//——————————————————————————————HiRectangle————————————————————————————————————————————-	
 	HiRectangle.prototype.init = function(points, color, weight, opacity, fillcolor){
-		this.rectangle = new Rectangle(points, color, weight, opacity, fillcolor);
+		this.overlay = new Rectangle(points, color, weight, opacity, fillcolor);
 	};
 	
+	HiRectangle.prototype.addListener = function(action, func){
+		this.overlay.addListener(action,func);
+	};
+		
+	HiRectangle.prototype.getZIndex = function(){
+		return this.overlay.getZIndex();
+	}
 	
+	HiRectangle.prototype.openInfoWindowHtml = function(strHTML){
+		this.overlay.openInfoWindowHtml(strHTML);
+	}
 	
+	HiRectangle.prototype.getMBR = function(){
+		return this.points.split(",")[0]+","+this.points.split(",")[1]+","+this.points.split(",")[2]+","+this.points.split(",")[3];
+	};
+	
+	HiRectangle.prototype.setZIndex = function(iIndex){
+		this.overlay.setZIndex(iIndex);
+	}
+//——————————————————————————————HiRect————————————————————————————————————————————-	
+	HiRect.prototype.init = function(width,height){
+		this.overlay = new Rect(width, height);
+	};
+	
+	HiRect.prototype.approxEquals  = function(anotherRect){
+		this.overlay.approxEquals (anotherRect);
+	}
+	
+	HiRect.prototype.equals  = function(anotherRect){
+		this.overlay.equals (anotherRect);
+	}
+	
+	HiWMSLayer.prototype.init = function(){
+		var params = this.params;
+		var pEndTime = new Date();
+		var timestr = pEndTime.getFullYear()+""+pEndTime.getMonth()+""+pEndTime.getDate()+""+pEndTime.getHours()+""+pEndTime.getMinutes();
+		var defaulturl = HiMapConfig.geoserverURL+"/sde/wms?REQUEST=GetMap&BBOX=EZBOX&WIDTH=EZWIDTH&HEIGHT=EZHEIGHT&VERSION=1.1.0&FORMAT=image/png&SERVICE=WMS&SRS=EPSG:4326&TRANSPARENT=true";
+		params.url = this.params.url||defaulturl;
+		params.realurl = this.params.url;
+		if(checkParam(params.layername,"string")){
+			params.realurl +="&LAYERS="+params.layername;
+		}
+		if(checkParam(params.styles,"string")){
+			params.realurl +="&styles="+params.styles;
+		}
+		if(checkParam(params.cql_filter,"string")){
+			params.realurl +="&cql_filter="+escape(params.cql_filter);
+		}
+		this.layer = new LegendFunc();
+		this.layer.format=params.realurl;
+	}
+	HiWMSLayer.prototype.show = function(_MapApp){
+		this._MapApp = _MapApp;
+		this.layer.open(_MapApp.map);
+	}
+	HiWMSLayer.prototype.close = function(_MapApp){
+		if(this.clicklistener!=null){
+			this.removeClickListener();
+		}
+		this.layer.close();
+	}
+	HiWMSLayer.prototype.setRefreshTime = function(timer){
+		this.layer.setRefreshTime(timer);
+	}
 	
     return HiMap;
 

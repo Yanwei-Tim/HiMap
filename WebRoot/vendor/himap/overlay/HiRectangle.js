@@ -17,21 +17,15 @@ define([], function() {
 	
 	HiRectangle.prototype.init = function(points, color, weight, opacity, fillcolor){};
 	
-	HiRectangle.prototype.addListener = function(action, func){
-		this.rectangle.addListener(action,func);
-	};
-		
-	HiRectangle.prototype.getZIndex = function(){
-		return this.rectangle.getZIndex();
-	}
+	HiRectangle.prototype.addListener = function(action, func){};
 	
-	HiRectangle.prototype.openInfoWindowHtml = function(strHTML){
-		this.rectangle.openInfoWindowHtml(strHTML);
-	}
+	HiRectangle.prototype.getZIndex = function(){};
 	
-	HiRectangle.prototype.setZIndex = function(iIndex){
-		this.rectangle.setZIndex(iIndex);
-	}
+	HiRectangle.prototype.openInfoWindowHtml = function(strHTML){};
+	
+	HiRectangle.prototype.setZIndex = function(iIndex){};
+	
+	HiRectangle.prototype.getMBR = function(){};
 	
 	return HiRectangle;
 	

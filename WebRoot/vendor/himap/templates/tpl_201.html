@@ -1,0 +1,41 @@
+
+<script id="tpl_201" type="text/x-handlebars-template">
+	<div id='mainbox' style='margin:10px 0px 0px -5px ;width:300px;height:100px;border:0px solid black;'>
+		<table id='fluxtable' style='width:100%;font-size:12;font-family:Microsoft YaHei;'>
+			<tr><td width='15%'>路段名称:</td><td width='60%'>{{title}}</td></tr>
+			{{#if markerinfo.volume}}
+				<tr><td width='15%'>交通流量:</td><td width='60%'>{{markerinfo.volume}} 辆/小时</td></tr>
+			{{else}}
+				<tr><td width='15%'>交通流量:</td><td width='60%'>--</td></tr>
+			{{/if}}
+			{{#if markerinfo.averagespeed}}
+				<tr><td width='15%'>平均车速:</td><td width='60%'>{{markerinfo.averagespeed}} 千米/时</td></tr>
+			{{else}}
+				<tr><td width='15%'>平均车速:</td><td width='60%'>--</td></tr>
+			{{/if}}
+
+			{{#if markerinfo.receivetime}}
+				<tr><td width='15%'>上传时间:</td><td width='60%'>{{markerinfo.receivetime}}</td></tr>
+			{{else}}
+				<tr><td width='15%'>上传时间:</td><td width='60%'>--</td></tr>
+			{/if}}
+			<tr><td width='15%'>拥堵状况:</td><td width='60%'>{{genTrafficStatus markerinfo.status}}</td></tr>
+			<tr><td width='15%' nowrap>实时视频：</td><td width='60%'>
+			{{#if markerinfo.videoid1}}
+				<a href=javascript:himap.callCCTVCtrlInfo('{{markerinfo.videoid1}}')><img border='0' src='"+rooturl+"/images/equip/cctvIcon.png' title='{{markerinfo.videoname1}}' style='vertical-align:middle;width:24;height:24'/></a>&nbsp;&nbsp;
+			{{else}}
+			{{/if}}
+			{{#if markerinfo.videoid2}}
+				<a href=javascript:himap.callCCTVCtrlInfo('{{markerinfo.videoid2}}')><img border='0' src='"+rooturl+"/images/equip/cctvIcon.png' title='{{markerinfo.videoname2}}' style='vertical-align:middle;width:24;height:24'/></a>&nbsp;&nbsp;
+			{{/if}}
+			{{#if markerinfo.videoid3}}
+				<a href=javascript:himap.callCCTVCtrlInfo('{{markerinfo.videoid3}}')><img border='0' src='"+rooturl+"/images/equip/cctvIcon.png' title='{{markerinfo.videoname3}}' style='vertical-align:middle;width:24;height:24'/></a>&nbsp;&nbsp;
+			{{/if}}
+			</td></tr>
+		</table>
+	</div>
+</script>		
+<script  type="text/javascript">
+	
+</script>
+		

@@ -13,13 +13,9 @@ define([], function() {
 	
 	HiRect.prototype.init = function(width,height){}
 	
-	HiRect.prototype.approxEquals  = function(anotherRect){
-		this.rect.approxEquals (anotherRect);
-	}
+	HiRect.prototype.approxEquals  = function(anotherRect){};
 	
-	HiRect.prototype.equals  = function(anotherRect){
-		this.rect.equals (anotherRect);
-	}
+	HiRect.prototype.equals  = function(anotherRect){};
 	
 	
 	return HiRect;

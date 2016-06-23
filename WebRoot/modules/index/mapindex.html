@@ -1,19 +1,116 @@
-<html xmlns:v ="urn:schemas-microsoft-com:vml">
+<!DOCTYPE html >
+<html  xmlns:v ="urn:schemas-microsoft-com:vml">
 <head>
-    <meta charset="gbk">
+	<meta http-equiv="content-type" content="text/html; charset=gbk"/>
     <link rel="stylesheet" href="../../himap.css" type="text/css" />
     <script src="../../himap.js" maptype = "pgis" onready = "mapready"></script>
+    <script src = "../../vendor/jquery/jquery-1.7.2.min.js"></script>
+     <script src="js/mapindex.js"></script>
     <title>maptest</title>
+    <style>
+	  html, body, #map {
+	    padding: 0;
+	    margin: 0;
+	    height: 100%;
+	    overflow-x: hidden; overflow-y: hidden;
+	  }
+	</style>
     <script>
+    	var _MapApp;
     	function mapready(){
-    		var _MapApp = new HiMap(document.getElementById("map"));
+    		_MapApp = new HiMap(document.getElementById("map"));
     		_MapApp.centerAndZoom("120.38013,36.08662", 3);
-    		_MapApp.showDevice({deviceid:"370202000000131078",centable:true});
+    		window.parent._MapApp = _MapApp;
+    		//var query = new MapQuery();
+    		//query.queryDevice("120.38013,36.08662,120.39013,36.08662","","queryByLineOrderByStart","30",function(data){
+    			//alert(data.rows.length);
+			//});
+    		//_MapApp.showDevice({deviceid:"370203000000131056",centable:true});
     	}
     </script>
 </head>
 
 <body style="overflow-x:hidden;overflow-y:hidden">
-	<div id="map" style="top: 0px; left: 0px; border-bottom: 0px; overflow-x: hidden; overflow-y: hidden;"></div>
+	<div id="map" ></div>
+	<!-- 在地图上获取点 -->
+	<div id="pointDiv" class="getposDiv" style="display:none">
+	    <table background="images/tt.jpg" style='width:100%;font-size:12;font-family:Microsoft YaHei;'>
+	        <tr><td style='font-weight:bolder;'>&nbsp;&nbsp;获取经纬度</td></tr>
+	    </table>
+	    <table id='fluxtable' style='width:95%;font-size:12;font-family:Microsoft YaHei;align:right;'>
+	        <tr>
+	            <td nowrap>&nbsp;&nbsp;经度:&nbsp;</td>
+	            <td><input type="text" id="dataInputx" style = "width:137" readonly/></td>
+	        </tr>
+	        <tr>
+	            <td>&nbsp;&nbsp;纬度:&nbsp;</td>
+	            <td><input type="text" id="dataInputy" style = "width:137" readonly/></td>
+	        </tr>
+	        <tr id='posdesc' style='display:none'>
+	            <td>&nbsp;&nbsp;描述:&nbsp;</td>
+	            <td><TEXTAREA id="digroadDesc" name="digroadDesc" style = "width:137" rows="3"  style="overflow-y:hidden" onpropertychange="if(value.length>400) value=value.substr(0,400)"></TEXTAREA></td>
+	        </tr>
+	    </table>
+	    <table style='width:95%;font-size:12;font-family:Microsoft YaHei;align:right;'>
+	        <tr>
+	            <td align="right">
+	                <input type="button" value="确定" id="pointsubmitbtn"  class="btn_mouseout" onmouseover="this.className='btn_mouseover'" onmouseout="this.className='btn_mouseout'" onmousedown="this.className='btn_mousedown'" onmouseup="this.className='btn_mouseup'"/>
+	                <input type="button" value="关闭" id="pointcalcelbtn"  class="btn_mouseout" onmouseover="this.className='btn_mouseover'" onmouseout="this.className='btn_mouseout'" onmousedown="this.className='btn_mousedown'" onmouseup="this.className='btn_mouseup'"/>
+	            </td>
+	        </tr>
+	    </table>
+	</div>
+	
+	<!-- 在地图上获取线 -->
+	<div id="lineDiv" class="getposDiv" style="display:none">
+	    <table background="images/tt.jpg" style='width:100%;font-size:12;font-family:Microsoft YaHei;'>
+	        <tr><td style='font-weight:bolder;'>&nbsp;&nbsp;获取经纬度</td></tr>
+	    </table>
+	    <table id='fluxtable2' style='width:98%;font-size:12;font-family:Microsoft YaHei;align:right;'>
+	        <tr>
+	            <td>&nbsp;&nbsp;经纬度:&nbsp;</td>
+	            <td><input type="text" id="lineInputx" readonly/></td>
+	        </tr>
+	        <tr style="display:none">
+	            <td>&nbsp;&nbsp;纬度:&nbsp;</td>
+	            <td><input type="text" id="lineInputy" readonly/></td>
+	        </tr>
+	    </table>
+	    <table style='width:95%;font-size:12;font-family:Microsoft YaHei;align:right;'>
+	        <tr>
+	            <td align="right">
+	                <input type="button" value="确定" id="linesubmitbtn"  class="btn_mouseout" onmouseover="this.className='btn_mouseover'" onmouseout="this.className='btn_mouseout'" onmousedown="this.className='btn_mousedown'" onmouseup="this.className='btn_mouseup'"/>
+	                <input type="button" value="关闭" id="linecalbtn"  class="btn_mouseout" onmouseover="this.className='btn_mouseover'" onmouseout="this.className='btn_mouseout'" onmousedown="this.className='btn_mousedown'" onmouseup="this.className='btn_mouseup'"/>
+	            </td>
+	        </tr>
+	    </table>
+	</div>
+	
+	<!-- 在地图上获取面 -->
+	<div id="polygonDiv" class="getposDiv" style="display:none">
+	    <table background="images/tt.jpg" style='width:100%;font-size:12;font-family:Microsoft YaHei;'>
+	        <tr><td style='font-weight:bolder;'>&nbsp;&nbsp;选取区域</td></tr>
+	    </table>
+	    <table id='dutyAreatable' style='width:95%;font-size:12;font-family:Microsoft YaHei;'>
+	        <tr height="40px">
+	            <td>&nbsp;&nbsp;选取方式:&nbsp;
+	                <select id="selAreaTypeId">
+	                    <option value="0">圆形</option>
+	                    <option value="1">矩形</option>
+	                    <option value="2">多边形</option>
+	                </select>
+	            </td>
+	        </tr>
+	    </table>
+	    <table style='width:95%;font-size:12;font-family:Microsoft YaHei;'>
+	        <tr>
+	            <td align="right">
+	                <input type="button" value="选取区域" id="selpolygonbtn"  class="btn_mouseout" onmouseover="this.className='btn_mouseover'" onmouseout="this.className='btn_mouseout'" onmousedown="this.className='btn_mousedown'" onmouseup="this.className='btn_mouseup'"/>
+	                <input type="button" value="确定" id="polygonsubmitbtn"  class="btn_mouseout" onmouseover="this.className='btn_mouseover'" onmouseout="this.className='btn_mouseout'" onmousedown="this.className='btn_mousedown'" onmouseup="this.className='btn_mouseup'"/>
+	                <input type="button" value="关闭" id="polygoncalbtn"  class="btn_mouseout" onmouseover="this.className='btn_mouseover'" onmouseout="this.className='btn_mouseout'" onmousedown="this.className='btn_mousedown'" onmouseup="this.className='btn_mouseup'"/>
+	            </td>
+	        </tr>
+	    </table>
+	</div>
 </body>
 </html>

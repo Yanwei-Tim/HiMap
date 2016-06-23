@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Shapes and Symbols</title>
+	
+	
+
+    <link rel="stylesheet" href="vendor/arcgis_js_v316_api/3.16/esri/css/esri.css">
+
+    <style>
+      #overviewMapDiv {
+        top: 20px;
+       
+        height: 115px;
+        border: solid 5px #666;
+        border-radius: 8px;
+        right: 50px;
+        margin: 5px;
+        padding: 10px;
+        position: absolute;
+        width: 115px;
+       
+      }
+	  #info {
+        bottom: 200px;
+        color: #444;
+        height: auto;
+        font-family: arial;
+        right: 20px;
+        margin: 5px;
+        padding: 10px;
+        position: absolute;
+        width: 115px;
+        z-index: 40;
+        border: solid 2px #666;
+        border-radius: 4px;
+        background-color: #fff;
+      }
+      html, body, #mapDiv {
+        padding:0;
+        margin:0;
+        height:95%;
+      }
+      button {
+        display: block;
+      }
+    </style>
+
+	
+	<script>
+		var urls = document.URL.split( "/" );
+        var rooturl = urls[0]+"/"+ urls[1]+"/"+ urls[2]+"/"+ urls[3];
+        var baseurl = urls[2]+"/"+ urls[3];
+        var HOSTNAME_AND_PATH_TO_JSAPI = baseurl+"/vendor/arcgis_js_v316_api/3.16/";
+        
+        dojoConfig = {
+		    packages: [
+		        { name: "himap", location: "../../../../vendor/himap" },
+		        { name: "vendor", location: "../../../../vendor" }
+		    ],paths: {
+		        jquery: "../../../jquery/jquery-1.10.2.min"
+		    }
+		};
+	</script>
+    <script src="vendor/arcgis_js_v316_api/3.16/init.js"></script>
+    <script>
+      var map, tb;
+
+      require([
+        "esri/map", "esri/toolbars/draw",
+        "esri/symbols/SimpleMarkerSymbol", "esri/symbols/SimpleLineSymbol",
+        "esri/symbols/PictureFillSymbol", "esri/symbols/CartographicLineSymbol", "esri/dijit/OverviewMap",
+        "esri/graphic", "esri/layers/GraphicsLayer","esri/symbols/PictureMarkerSymbol","esri/InfoTemplate",
+        "esri/Color", "dojo/dom", "dojo/on","himap/map/himap_arcgis", "dojo/domReady!"
+      ], function(
+        Map, Draw,
+        SimpleMarkerSymbol, SimpleLineSymbol,
+        PictureFillSymbol, CartographicLineSymbol, OverviewMap,
+        Graphic, GraphicsLayer,PictureMarkerSymbol,InfoTemplate,
+        Color, dom, on,HiMap
+      ) {
+        map = new esri.Map("mapDiv");
+		var myTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer("https://cache1.arcgisonline.cn/arcgis/rest/services/ChinaOnlineCommunity/MapServer");
+        map.addLayer(myTiledMapServiceLayer);
+       	
+		map.centerAndZoom([113.87013,35.29062],15);
+		var map = new HiMap();
+		alert(map.testparam);
+		
+      });
+    </script>
+  </head>
+  
+  <body>
+    <div id="mapDiv">
+		</div>
+	<div id="overviewMapDiv">
+	</div>
+	
+	<input type="button" style="font-size: large" onclick="map.graphics.clear()" value="清除"/>
+	<input type="button" style="font-size: large" onclick="initToolbar()" value="显示"/>
+  </body>
+</html>
+ 

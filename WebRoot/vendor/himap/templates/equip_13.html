@@ -25,19 +25,19 @@
 				<tr><td>设备名称：<label id='devicename' title='{{currRecord.devicename}}'>{{shotparam currRecord.devicename shotlength=10}}</label></td></tr>
 			{{/if}}
 			<tr><td>设备型号：<label id='devicemodel'  title='{{currRecord.devicemodel}}'>{{shotparam currRecord.devicemodel shotlength=10}}</label></td></tr>
-			<tr><td>生产厂家：<label id='provider'>{{currRecord.provider}}</label></td></tr>
+			<tr><td>生产厂家：<label id='provider'>{{currRecord.providername}}</label></td></tr>
 			<tr><td>安装地点：<label id='pointname' title='{{currRecord.pointname}}'>{{shotparam currRecord.pointname shotlength=10}}</label></td></tr>
 			<tr><td>安装日期：<label id='providedate'>{{currRecord.providedate}}</label></td></tr>
-			<tr><td>视频编号：<b><label id='thirdsyscode'>{{currRecord.thirdsyscode}}</label></b></td></tr>
-			<tr><td>设备状态：<label id='devicestate'>{{currRecord.nstatename}}</label></td></tr>
+			<tr><td>设备状态：<label id='devicestate'>{{currRecord.statename }}</label></td></tr>
 		</table>
 	</div>
 	<div id='content' style='display:{{currRecord.authflag}};float:right;margin:0px 0px 0px 0px;width:170px;height:20px;background:white;font-family:Microsoft YaHei;'>
-		<input type='button' style='left:10px;margin:1px 5px 0px 90px;font-size:12;font-family:Microsoft YaHei;' value='进入监控' onclick="javascript:himap.callCCTVCtrlInfo()"/>
+		<input type='button' style='left:10px;margin:1px 5px 0px 90px;font-size:12;font-family:Microsoft YaHei;' value='进入监控' onclick="javascript:testshow()"/>
 	</div>
 </div>
 </script>		
 <script  type="text/javascript">
+	
 	function testshow(){
 		alert("ggggg");
 	}

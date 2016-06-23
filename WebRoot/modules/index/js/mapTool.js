@@ -6,8 +6,9 @@ $(document).ready(function(){
 	var mouseIsiInLayerDiv = false;
 	var recsearchflag=0;
 	var equipsearchflag=0;
+	var mapframe = document.getElementById("mapframe").contentWindow;
 	
-	$("#mapPanelDiv").load("mapmgr/jsp/templates/indextpl.html",function(){
+	$("#mapPanelDiv").load("modules/index/indextpl.html",function(){
 		$("#mapServerDiv").unwrap(); //移出 mapPanelDiv 
 		$("#mapPanelDiv").remove();
 		
@@ -16,7 +17,7 @@ $(document).ready(function(){
 		
 		/*加载所有图层信息*/
 		$.ajax({
-			url:"himap/getMapToolAuth.do",
+			url:"mapindex/getMapToolAuth",
 			type:"get",
 			dataType:"json",
 			data:{},
@@ -30,7 +31,7 @@ $(document).ready(function(){
 		
 		/*加载所有图层信息*/
 		$.ajax({
-			url:"himap/getuserLayers.do",
+			url:"mapindex/getuserLayers",
 			type:"post",
 			dataType:"json",
 			data:{},
@@ -42,6 +43,7 @@ $(document).ready(function(){
 					
 					for(var i=0;i<layers.length;i++){
 						var templayer = layers[i];
+						templayer.licon = templayer.licon.replace("images/map","modules/index/images");
 						if(templayer.isfavor =="1"){
 							favorLayers.push(templayer);
 						}
@@ -121,11 +123,11 @@ $(document).ready(function(){
 							layerhtml+="<input type='hidden' class='modulename' value='"+layer.modulename+"'/>";
 							layerhtml+="<input type='hidden' class='cfunc' value=\""+layer.cfunc+"\"/>";
 							layerhtml+="<input type='hidden' class='ucfunc' value=\""+layer.ucfunc+"\"/>";
-							layerhtml+="<div class ='layer_check'><img src='images/map/uncheck.png'/></div>";
+							layerhtml+="<div class ='layer_check'><img src='modules/index/images/uncheck.png'/></div>";
 							layerhtml+="<span  id='"+layer.lid+"' class='layer_type' name = '"+layer.thirdsyscode+"'>";
 							layerhtml+="<img  class='layer_icon' src='"+layer.licon+"' title='"+layer.lname+"' />"+layer.lname;
 							layerhtml+="</span>";
-							layerhtml+="&nbsp;&nbsp;<img src='images/map/nail.png' class='nail' title='固定在右侧' /></td>";
+							layerhtml+="&nbsp;&nbsp;<img src='modules/index/images/nail.png' class='nail' title='固定在右侧' /></td>";
 							nextlinecount++;
 							if(nextlinecount == rownum){
 								nextlinecount = 0;
@@ -287,10 +289,10 @@ $(document).ready(function(){
 	    	var nail = $(this).next();
 	    	nail.show();
 	    	if(favorlayer.attr("id") == undefined){ //如果没有在快捷栏上，启动钉子
-	    		nail.attr("src","images/map/nail.png");
+	    		nail.attr("src","modules/index/images/nail.png");
 	    		nail.attr("title","固定在右侧");
 	    	}else{
-	    		nail.attr("src","images/map/unnail.png");
+	    		nail.attr("src","modules/index/images/unnail.png");
 	    		nail.attr("title","取消固定");
 	    	}
 	    	event.stopPropagation();   	
@@ -313,14 +315,14 @@ $(document).ready(function(){
 	    	}
 	    });
 	    $(document).on('click',".nail",function(event){
-	    	if($(this).attr("src")=="images/map/nail.png"){ //固定
+	    	if($(this).attr("src").indexOf("modules/index/images/nail.png")>=0){ //固定
 	    		var layersize = $("#mapToolDiv ul li").size();
 	    		if(layersize>=15){
 	    			$(this).attr("title","最多只能设置12个快捷图标");
 	    			event.stopPropagation();
 	    			return;
 	    		}
-	    		$(this).attr("src","images/map/unnail.png").attr("title","取消固定");
+	    		$(this).attr("src","modules/index/images/unnail.png").attr("title","取消固定");
 	    		//动画效果
 	    		var leftval = $("#mapToolDiv").position().left-$("#layerDiv").position().left;
 		    	var topval = $("#mapToolDiv").position().top + ($("#mapToolDiv ul").children().length-1)*25;
@@ -339,7 +341,7 @@ $(document).ready(function(){
 				 	if(isinnail){
 				 		tonailLayer.next().trigger("mouseover");
 				 	}
-				 	if(tonailLayer.prev().find("img").attr("src") == "images/map/checked.png"){
+				 	if(tonailLayer.prev().find("img").attr("src") == "modules/index/images/checked.png"){
 				 		$("#icon-"+tonailLayer.attr("id")).css("background-color","#083548");
 				 	}
 				 	//保存到后台trigger("mouseover")
@@ -353,7 +355,7 @@ $(document).ready(function(){
 				 	
 				 	layers = layers.substring(0,layers.length-1);
 					$.ajax({
-						url:"himap/editFavorLayer.do",
+						url:"mapindex/editFavorLayer",
 						type:"post",
 						dataType:"json",
 						data:{params:layers},
@@ -362,7 +364,7 @@ $(document).ready(function(){
 				 	
 				 });
 	    	}else{
-	    		$(this).attr("src","images/map/nail.png").attr("title","固定在右侧");
+	    		$(this).attr("src","modules/index/images/nail.png").attr("title","固定在右侧");
 	    		var favorli = $("#icon-"+tonailLayer.attr('id'));
 	    		favorli.hide('normal',function(){
 					favorli.remove();
@@ -378,7 +380,7 @@ $(document).ready(function(){
 				 	
 				 	layers = layers.substring(0,layers.length-1);
 					$.ajax({
-						url:"himap/editFavorLayer.do",
+						url:"mapindex/editFavorLayer",
 						type:"post",
 						dataType:"json",
 						data:{params:layers},
@@ -403,11 +405,11 @@ $(document).ready(function(){
 	    	var callfunc = cfunc;
 	    	
 	    	var layerid = $(this).parent().next().attr("id");
-	    	if($(this).attr("src") == "images/map/uncheck.png"){ //勾选事件
-	    		$(this).attr("src","images/map/checked.png");
+	    	if($(this).attr("src") == "modules/index/images/uncheck.png"){ //勾选事件
+	    		$(this).attr("src","modules/index/images/checked.png");
 		     	$("#icon-"+layerid).css("background-color","#083548");
 	    	}else{ //取消勾选事件
-	    		$(this).attr("src","images/map/uncheck.png");
+	    		$(this).attr("src","modules/index/images/uncheck.png");
 	    		$("#icon-"+layerid).css("background-color","");
 	    		callfunc = ucfunc;
 	    	}
@@ -434,20 +436,29 @@ $(document).ready(function(){
 	    	var id = $(this).attr('id');
 	    	if(id == "clear"){ //清空
 		     	$("#layerDiv .layer_check img").each(function(layer){
-		     		if($(this).attr("src") == "images/map/checked.png"){
+		     		if($(this).attr("src") == "modules/index/images/checked.png"){
 		     			$(this).trigger("click");
 		     		}
 		     	});
-	    		MyMapFrameId._MapApp.clearOverlays();
+	    		mapframe._MapApp.clearOverlays();
+	    		if(mapframe.assistantInteract!=null){
+                     mapframe.assistantInteract.selectedTypes = new Array();
+                     mapframe.assistantInteract.allMarkersKdTree = new Array();
+                     mapframe.assistantInteract.recAreaLayer = null;
+                 }
+		     	MyMapFrameId.himap.param.markerMap.clear();
+		     	MyMapFrameId._MapApp.clear();
+				MyMapFrameId._MapApp.changeDragMode('pan');
 				
 	    	}else if(id == "leng"){// 测距
+	    		//mapframe.himap.getLinePos(this,function(result){alert(result);mapframe._MapApp.showPolyline({strcoords:result});});
 	    		mapframe._MapApp.measureLength();
 	    	}else if(id == "area"){ //测面积
 	    		mapframe._MapApp.measureArea();
 	    	}else if(id == "view"){ //鹰眼
-	    		MyMapFrameId._MapApp.reverseOverView();
+	    		mapframe._MapApp.reverseOverView();
 	    	}else if(id == "print"){ //地图打印
-	    		MyMapFrameId._MapApp.printmap();
+	    		mapframe._MapApp.printmap();
 	    	}else if(id == "illegalHeat"){//违法热点图
 	    	   	var date=new Date(new Date().getFullYear(),new Date().getMonth(),new Date().getDate()-1);
 		       	begin=date.getFullYear()+"-"+((date.getMonth()+1)<10? "0"+(date.getMonth()+1):(date.getMonth()+1)) +"-"+(date.getDate()<10? "0"+date.getDate():date.getDate());
@@ -545,5 +556,8 @@ $(document).ready(function(){
 	    });
 	    
 	});
+	
+
 
 });
+

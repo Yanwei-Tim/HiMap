@@ -13,6 +13,9 @@ define([], function() {
 		this.mbr = null;
 		this.init();
 	};
+	HiMBR.prototype.toString = function () {
+	    return this.minX + "," + this.minY + "," + this.maxX + "," + this.maxY;
+	};
 	
 	//构造函数，在实现类中重写
 	HiMBR.prototype.init = noop;
